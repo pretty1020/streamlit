@@ -1,5 +1,6 @@
-from wordcloud import WordCloud
+
 import streamlit as st
+from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from textblob import TextBlob
 import numpy as np
@@ -12,7 +13,6 @@ def get_base64(bin_file):
         data = f.read()
     return base64.b64encode(data).decode()
 
-
 def set_background(png_file):
     bin_str = get_base64(png_file)
     page_bg_img = '''
@@ -24,9 +24,7 @@ def set_background(png_file):
     background-attachment: local;
     background-position: auto
     }
-    body {
-        background-color: #f2f2f2; /* Use your preferred shade of gray */
-    }
+   
     </style>
     
        <style>
