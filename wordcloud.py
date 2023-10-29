@@ -1,5 +1,5 @@
 import streamlit as st
-from wordcloud import WordCloud
+from Wordcloud2 import Wordcloud2
 import matplotlib.pyplot as plt
 from textblob import TextBlob
 import numpy as np
@@ -63,10 +63,10 @@ uploaded_file = st.file_uploader("Choose a file...", type=["txt"])
 analysis_option = st.selectbox("Choose Analysis", ["Generate Word Cloud", "Sentiment Analysis"])
 
 # Function to generate word cloud
-def generate_wordcloud(text):
-    wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
+def generate_Wordcloud2(text):
+    Wordcloud2 = Wordcloud2(width=800, height=400, background_color='white').generate(text)
     plt.figure(figsize=(10, 5))
-    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.imshow(Wordcloud2, interpolation='bilinear')
     plt.axis("off")
     st.pyplot(plt)
 
@@ -95,11 +95,11 @@ if st.button("Analyze"):
     if input_text or uploaded_file:
         if analysis_option == "Generate Word Cloud":
             if input_text:
-                generate_wordcloud(input_text)
+                generate_Wordcloud2(input_text)
             else:
                 with uploaded_file:
                     text = uploaded_file.read().decode("utf-8")
-                    generate_wordcloud(text)
+                    generate_Wordcloud2(text)
         elif analysis_option == "Sentiment Analysis":
             if input_text:
                 sentiment, color, emoji, sentiment_label = perform_sentiment_analysis(input_text)
