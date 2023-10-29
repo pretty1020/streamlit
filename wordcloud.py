@@ -1,5 +1,5 @@
 import streamlit as st
-from Wordcloud2 import Wordcloud2
+from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from textblob import TextBlob
 import numpy as np
@@ -36,7 +36,7 @@ def set_background(png_file):
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
 
-set_background('wfmcalc3.png')
+set_background('C:/Users/admin/OneDrive/Desktop/wfmcalc3.png')
 
 # Define the Streamlit app title and description
 st.title("Word Cloud and Sentiment Analysis")
@@ -63,10 +63,10 @@ uploaded_file = st.file_uploader("Choose a file...", type=["txt"])
 analysis_option = st.selectbox("Choose Analysis", ["Generate Word Cloud", "Sentiment Analysis"])
 
 # Function to generate word cloud
-def generate_Wordcloud2(text):
-    Wordcloud2 = Wordcloud2(width=800, height=400, background_color='white').generate(text)
+def generate_wordcloud(text):
+    wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
     plt.figure(figsize=(10, 5))
-    plt.imshow(Wordcloud2, interpolation='bilinear')
+    plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis("off")
     st.pyplot(plt)
 
@@ -95,11 +95,11 @@ if st.button("Analyze"):
     if input_text or uploaded_file:
         if analysis_option == "Generate Word Cloud":
             if input_text:
-                generate_Wordcloud2(input_text)
+                generate_wordcloud(input_text)
             else:
                 with uploaded_file:
                     text = uploaded_file.read().decode("utf-8")
-                    generate_Wordcloud2(text)
+                    generate_wordcloud(text)
         elif analysis_option == "Sentiment Analysis":
             if input_text:
                 sentiment, color, emoji, sentiment_label = perform_sentiment_analysis(input_text)
