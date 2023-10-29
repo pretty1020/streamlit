@@ -36,7 +36,7 @@ def set_background(png_file):
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
 
-set_background('C:/Users/admin/OneDrive/Desktop/wfmcalc3.png')
+set_background('wfmcalc3.png')
 
 # Define the Streamlit app title and description
 st.title("Word Cloud and Sentiment Analysis")
