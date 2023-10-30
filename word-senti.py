@@ -1,6 +1,6 @@
 
 
-from wordcloud import WordCloud
+from wordcloud import wordcloud
 import streamlit as st
 import matplotlib.pyplot as plt
 from textblob import TextBlob
