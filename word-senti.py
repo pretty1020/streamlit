@@ -1,5 +1,5 @@
 
-import wordcloud as wordcloud
+from wordcloud import Wordcloud
 import streamlit as st
 import matplotlib.pyplot as plt
 from textblob import TextBlob
