@@ -1,5 +1,4 @@
 
-
 import streamlit as st
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
@@ -8,11 +7,11 @@ import numpy as np
 import base64
 
 
-
 def get_base64(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
     return base64.b64encode(data).decode()
+
 
 def set_background(png_file):
     bin_str = get_base64(png_file)
@@ -25,12 +24,12 @@ def set_background(png_file):
     background-attachment: local;
     background-position: auto
     }
-   
+
     </style>
-    
+
        <style>
-  
-    
+
+
     ''' % bin_str
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
@@ -61,6 +60,7 @@ uploaded_file = st.file_uploader("Choose a file...", type=["txt"])
 # Choose analysis
 analysis_option = st.selectbox("Choose Analysis", ["Generate Word Cloud", "Sentiment Analysis"])
 
+
 # Function to generate word cloud
 def generate_wordcloud(text):
     wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
@@ -68,6 +68,7 @@ def generate_wordcloud(text):
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis("off")
     st.pyplot(plt)
+
 
 # Function to perform sentiment analysis and create colorful visualization
 def perform_sentiment_analysis(text):
@@ -88,6 +89,7 @@ def perform_sentiment_analysis(text):
         sentiment_label = "Neutral"
 
     return sentiment, color, emoji, sentiment_label
+
 
 # Analyze button
 if st.button("Analyze"):
@@ -137,11 +139,15 @@ if st.button("Analyze"):
 
 # Definitions
 st.header("Definitions")
-st.markdown("**Word Cloud:** A visual representation of frequently occurring words in a text, where the size of each word is proportional to its frequency.")
-st.markdown("**Sentiment Analysis:** The process of determining the sentiment (positive, negative, or neutral) expressed in a piece of text.")
-st.markdown("**Polarity:** A measure of sentiment, where positive values indicate positivity, negative values indicate negativity, and zero indicates neutrality.")
-st.markdown("**Sentiment Emoji:** Emoji representation of sentiment - 😃 for positive, 😞 for negative, and 😐 for neutral.")
-st.markdown("**Sentiment Color:** Visual indication of sentiment, where green represents positive, red represents negative, and yellow represents neutral.")
+st.markdown(
+    "**Word Cloud:** A visual representation of frequently occurring words in a text, where the size of each word is proportional to its frequency.")
+st.markdown(
+    "**Sentiment Analysis:** The process of determining the sentiment (positive, negative, or neutral) expressed in a piece of text.")
+st.markdown(
+    "**Polarity:** A measure of sentiment, where positive values indicate positivity, negative values indicate negativity, and zero indicates neutrality.")
+st.markdown(
+    "**Sentiment Emoji:** Emoji representation of sentiment - 😃 for positive, 😞 for negative, and 😐 for neutral.")
+st.markdown(
+    "**Sentiment Color:** Visual indication of sentiment, where green represents positive, red represents negative, and yellow represents neutral.")
 
 # Add additional information or explanations as needed
-
