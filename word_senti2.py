@@ -139,4 +139,4 @@ st.markdown(
     "**Sentiment Color:** Visual indication of sentiment, where green represents positive, red represents negative, and yellow represents neutral.")
 
 # Add additional information or explanations as needed
-st.write("Developed by Marian")
+
