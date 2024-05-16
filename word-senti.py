@@ -29,11 +29,11 @@ def set_background(png_file):
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
 
-set_background('wfmcalc3.png')
+set_background('senti1.png')
 
 # Define the Streamlit app title and description
-st.title("Word Cloud and Sentiment Analysis")
-st.write("This app allows you to analyze text data using Word Cloud and Sentiment Analysis.")
+st.title("Sentiment Analysis tool and Word Cloud")
+st.write("This app allows you to analyze text data using Word Cloud and Sentiment Analysis. This tool is unique as it dissect each row of your text with insights and emotions.")
 
 # Define user instructions and definitions
 st.header("User Guide")
@@ -126,7 +126,7 @@ if st.button("Analyze"):
         st.warning("Please enter or upload text data for analysis.")
 
 # Definitions
-st.header("Definitions")
+st.header("Definitions:")
 st.markdown(
     "**Word Cloud:** A visual representation of frequently occurring words in a text, where the size of each word is proportional to its frequency.")
 st.markdown(
@@ -138,4 +138,12 @@ st.markdown(
 st.markdown(
     "**Sentiment Color:** Visual indication of sentiment, where green represents positive, red represents negative, and yellow represents neutral.")
 
-# Add additional information or explanations as needed
+# Additional Information and Contact
+st.header("Further Assistance and Customization")
+st.markdown(
+    "For personalized assistance, suggestions, or customization, feel free to reach out to us:")
+st.markdown(
+    "- **Email:** [mpailden@gmail.com](mailto:mpailden@gmail.com)")
+st.markdown(
+    "- **Viber/WhatsApp:** [+639278665190](https://wa.me/639278665190)")
+
