@@ -7,6 +7,7 @@ from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
 # Function to preprocess data
 def preprocess_data(df):
     df.dropna(inplace=True)
@@ -15,6 +16,7 @@ def preprocess_data(df):
     df['Month'] = pd.to_datetime(df['Date']).dt.month
     return df
 
+
 # Function to train model
 def train_model(X_train, y_train, model_type='LinearRegression'):
     if model_type == 'LinearRegression':
@@ -22,9 +24,11 @@ def train_model(X_train, y_train, model_type='LinearRegression'):
     model.fit(X_train, y_train)
     return model
 
+
 # Function to predict using trained model
 def predict(model, input_values):
     return model.predict([input_values])[0]
+
 
 # Function to display results
 def visualize_results(y_test, y_pred_linear):
@@ -37,13 +41,6 @@ def visualize_results(y_test, y_pred_linear):
     plt.legend()
     st.pyplot(plt)
 
-    plt.figure(figsize=(10, 5))
-    sns.histplot(y_test - y_pred_linear, kde=True, color='blue', label='Linear Regression Residuals')
-    plt.xlabel('Residuals')
-    plt.ylabel('Frequency')
-    plt.title('Distribution of Residuals')
-    plt.legend()
-    st.pyplot(plt)
 
 # Main Streamlit app
 def main():
@@ -54,13 +51,18 @@ def main():
     staff_scheduled = st.sidebar.number_input('Staff Scheduled', min_value=0, step=1)
     service_time = st.sidebar.number_input('Service Time (mins)', min_value=0, step=1)
     marketing = st.sidebar.selectbox('Marketing', ['no', 'yes'])
-    day_of_week = st.sidebar.selectbox('Day of Week', ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
-    month = st.sidebar.selectbox('Month', ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'])
+    day_of_week = st.sidebar.selectbox('Day of Week',
+                                       ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+    month = st.sidebar.selectbox('Month',
+                                 ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+                                  'October', 'November', 'December'])
 
     # Encode categorical variables
     marketing_encoded = 1 if marketing == 'yes' else 0
-    day_of_week_encoded = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].index(day_of_week)
-    month_encoded = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].index(month) + 1
+    day_of_week_encoded = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].index(
+        day_of_week)
+    month_encoded = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
+                     'November', 'December'].index(month) + 1
 
     # Upload data
     uploaded_file = st.file_uploader("Upload CSV file", type=['csv'])
@@ -91,8 +93,7 @@ def main():
 
         st.write("## Model Results")
         st.write("Mean Squared Error (Linear Regression):", mse_linear)
-       
-        
+
         # Visualize results
         visualize_results(y_test, y_pred_linear)
 
