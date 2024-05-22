@@ -107,9 +107,9 @@ def main():
         st.write("""
         ### Definitions and Interpretations
         - **Residuals**: Residuals are the differences between the actual values and the predicted values. They represent the error in the predictions made by the model. In other words, residuals show how far off the model's predictions are from the actual values.
-        - **Day of Week**: Day of Week is the day of the week when the patient service was provided.
-        - **Month**: Month is the month when the patient service was provided.
-        - **Marketing Campaign**: Marketing Campaign - whether a marketing campaign was active during the patient service.
+        - **Day of Week**:  is the day of the week when the patient service was provided.
+        - **Month**: is the month when the patient service was provided.
+        - **Marketing Campaign**:  whether a marketing campaign was active during the patient service.
         - **Mean Squared Error (MSE)**: MSE is a metric that measures the average of the squares of the errors, that is, the average squared difference between the actual and predicted values. Lower MSE values indicate better model performance as they imply smaller errors.
         """)
     
