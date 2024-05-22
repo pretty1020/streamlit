@@ -107,7 +107,7 @@ def main():
 
         st.write("""
         ### Definitions and Interpretations
-        - **Residuals**: Residuals are the differences between the actual values and the predicted values. They represent the error in the predictions made by the model. In other words, residuals show how far off the model's predictions are from the actual values.
+       
         - **Day of Week**:  is the day of the week when the patient service was provided.
         - **Month**: is the month when the patient service was provided.
         - **Marketing Campaign**:  whether a marketing campaign was active during the patient service.
