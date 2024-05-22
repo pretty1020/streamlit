@@ -91,7 +91,8 @@ def main():
 
         st.write("## Model Results")
         st.write("Mean Squared Error (Linear Regression):", mse_linear)
-
+       
+        
         # Visualize results
         visualize_results(y_test, y_pred_linear)
 
@@ -108,6 +109,9 @@ def main():
         - **Residuals**: Residuals are the differences between the actual values and the predicted values. They represent the error in the predictions made by the model. In other words, residuals show how far off the model's predictions are from the actual values.
         - **Mean Squared Error (MSE)**: MSE is a metric that measures the average of the squares of the errors, that is, the average squared difference between the actual and predicted values. Lower MSE values indicate better model performance as they imply smaller errors.
         """)
+        st.write('- Day of Week: The day of the week when the patient service was provided.')
+        st.write('- Month: The month when the patient service was provided.')
+        st.write('- Marketing Campaign: Whether a marketing campaign was active during the patient service.')
 
 if __name__ == '__main__':
     main()
