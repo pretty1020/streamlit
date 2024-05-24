@@ -14,5 +14,4 @@ textblob==0.15.3
 yfinance==0.2.40
 pandas~=2.2.2
 numpy~=1.26.3
-requests=2.31.0
 certifi==2024.2.2
