@@ -8,15 +8,30 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 import plotly.express as px
 
 # Title
-st.title('Credit Analyst: Creditworthiness Prediction Tool')
-
+st.title('Credit Analyst: Creditworthiness Prediction')
 
 # User Guide
 st.sidebar.markdown('## User Guide')
-st.sidebar.markdown('1. Adjust the number of samples to generate synthetic data using the slider.')
-st.sidebar.markdown('2. Enter customer data in the sidebar input fields.')
-st.sidebar.markdown('3. Click the "Predict Creditworthiness" button to see the prediction.')
-st.sidebar.markdown('4. The prediction result will be displayed in the sidebar.')
+st.sidebar.markdown('### Overview')
+st.sidebar.markdown('This application predicts creditworthiness using a machine learning model trained on synthetic data. Input customer data to receive a prediction on whether the customer is likely to repay a loan or default.')
+
+st.sidebar.markdown('### Steps to Use the Application')
+st.sidebar.markdown('1. **Adjust the Number of Samples**:')
+st.sidebar.markdown('   - Use the slider to select the number of synthetic samples to generate for training the model (100 to 2000 samples).')
+st.sidebar.markdown('2. **Input Customer Data**:')
+st.sidebar.markdown('   - Enter the customer\'s age (18-70).')
+st.sidebar.markdown('   - Enter the customer\'s annual income.')
+st.sidebar.markdown('   - Enter the loan amount the customer is applying for.')
+st.sidebar.markdown('   - Enter the loan term in months (6-60).')
+st.sidebar.markdown('3. **Predict Creditworthiness**:')
+st.sidebar.markdown('   - Click the "Predict Creditworthiness" button to see the prediction result.')
+
+st.sidebar.markdown('### Visualizations')
+st.sidebar.markdown('- **Feature Importance**: Bar chart showing the importance of each feature in the model.')
+st.sidebar.markdown('- **Confusion Matrix**: Heatmap illustrating the model\'s performance on the training data.')
+
+st.sidebar.markdown('### Model Accuracy')
+st.sidebar.markdown('Displays the accuracy of the trained model based on the synthetic dataset.')
 
 # Generate synthetic data
 def generate_synthetic_data(num_samples):
