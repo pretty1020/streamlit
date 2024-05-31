@@ -1,11 +1,22 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
+import plotly.express as px
 
 # Title
-st.title('Credit Analyst: Creditworthiness Prediction')
+st.title('Credit Analyst: Creditworthiness Prediction Tool')
+
+
+# User Guide
+st.sidebar.markdown('## User Guide')
+st.sidebar.markdown('1. Adjust the number of samples to generate synthetic data using the slider.')
+st.sidebar.markdown('2. Enter customer data in the sidebar input fields.')
+st.sidebar.markdown('3. Click the "Predict Creditworthiness" button to see the prediction.')
+st.sidebar.markdown('4. The prediction result will be displayed in the sidebar.')
 
 # Generate synthetic data
 def generate_synthetic_data(num_samples):
@@ -68,5 +79,31 @@ if st.sidebar.button('Predict Creditworthiness'):
     else:
         st.sidebar.error('The customer is likely to default on the loan.')
 
+st.sidebar.markdown('This app uses fake data.For customization, contact the app developer')
+
 # Display model accuracy
 st.write(f'Model Accuracy: {accuracy:.2f}')
+
+# Visualization of feature importance
+st.header('Feature Importance')
+importance = model.feature_importances_
+feature_names = X.columns
+feature_importance_df = pd.DataFrame({'Feature': feature_names, 'Importance': importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('Feature')
+st.pyplot(plt)
+
+# Confusion Matrix
+st.header('Confusion Matrix')
+cm = confusion_matrix(y, y_pred)
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Default', 'Repay'], yticklabels=['Default', 'Repay'])
+plt.ylabel('Actual')
+plt.xlabel('Predicted')
+plt.title('Confusion Matrix')
+st.pyplot(fig)
