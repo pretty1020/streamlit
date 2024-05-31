@@ -11,7 +11,6 @@ import plotly.express as px
 st.title('Credit Analyst: Creditworthiness Prediction')
 
 # User Guide
-st.sidebar.markdown('## User Guide')
 st.sidebar.markdown('### Overview')
 st.sidebar.markdown('This application predicts creditworthiness using a machine learning model trained on synthetic data. Input customer data to receive a prediction on whether the customer is likely to repay a loan or default.')
 
