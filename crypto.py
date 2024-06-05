@@ -9,8 +9,12 @@ import requests
 # Function to load data for a given ticker
 @st.cache_data
 def load_data(ticker, period='1y', interval='1d'):
-    data = yf.download(ticker, period=period, interval=interval)
-    return data
+    try:
+        data = yf.download(ticker, period=period, interval=interval)
+        return data
+    except Exception as e:
+        st.error(f"Error loading data for {ticker}: {e}")
+        return pd.DataFrame()
 
 # Function to preprocess the data
 @st.cache_data
