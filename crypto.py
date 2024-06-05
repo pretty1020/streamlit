@@ -19,18 +19,26 @@ def load_data(ticker, period='1y', interval='1d'):
 # Function to preprocess the data
 @st.cache_data
 def preprocess_data(data):
-    data['Return'] = data['Close'].pct_change()
-    data.dropna(inplace=True)
-    return data
+    try:
+        data['Return'] = data['Close'].pct_change()
+        data.dropna(inplace=True)
+        return data
+    except Exception as e:
+        st.error(f"Error preprocessing data: {e}")
+        return pd.DataFrame()
 
 # Function to train the prediction model
 @st.cache_data
 def train_model(data):
-    X = data[['Open', 'High', 'Low', 'Volume']].values
-    y = data['Close'].values
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X, y)
-    return model
+    try:
+        X = data[['Open', 'High', 'Low', 'Volume']].values
+        y = data['Close'].values
+        model = RandomForestRegressor(n_estimators=100, random_state=42)
+        model.fit(X, y)
+        return model
+    except Exception as e:
+        st.error(f"Error training model: {e}")
+        return None
 
 # Function to predict prices
 @st.cache_data
