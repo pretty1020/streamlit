@@ -92,7 +92,7 @@ top_20 = [
 st.title("Cryptocurrency Price Prediction")
 
 # Create tab panel
-tabs = ["Cryptocurrency Prices", "Real-Time Data", "Upward Trend in Last 6 Hours", "Upward Trend in Last 3 Hours", "Trend in Last 12 Hours", "Currency Conversion to PHP"]
+tabs = ["Cryptocurrency Prices", "Real-Time Data", "Trend in Last 12 Hours", "Currency Conversion to PHP"]
 selected_tab = st.radio("Select a tab:", tabs)
 
 if selected_tab == "Cryptocurrency Prices":
