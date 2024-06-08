@@ -1,16 +1,17 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
 # Initial Data
 positions = ["Tellers", "Customer Service Representatives", "Teller Supervisors", "Assistant Branch Managers",
              "Branch Managers"]
 current_workforce_initial = [600, 300, 200, 75, 100]
 transition_probabilities_initial = {
-    "Tellers": [0.56, 0.11, 0.03, 0.00, 0.00, 0.30],
-    "Customer Service Representatives": [0.00, 0.46, 0.08, 0.05, 0.00, 0.41],
-    "Teller Supervisors": [0.00, 0.00, 0.63, 0.12, 0.00, 0.25],
-    "Assistant Branch Managers": [0.00, 0.00, 0.00, 0.52, 0.08, 0.40],
-    "Branch Managers": [0.00, 0.00, 0.00, 0.00, 0.70, 0.30],
+    "Tellers": [0.56, 0.11, 0.03, 0.00, 0.00],
+    "Customer Service Representatives": [0.00, 0.46, 0.08, 0.05, 0.00],
+    "Teller Supervisors": [0.00, 0.00, 0.63, 0.12, 0.0],
+    "Assistant Branch Managers": [0.00, 0.00, 0.00, 0.52, 0.08],
+    "Branch Managers": [0.00, 0.00, 0.00, 0.00, 0.70],
 }
 
 # Function to calculate next year's projection and gap analysis
@@ -47,18 +48,26 @@ st.subheader("Initial Data and Forecast")
 df_initial = forecast_and_gap_analysis(current_workforce_initial, transition_probabilities_initial)
 st.write(df_initial)
 
-# Display Next Year Projected based on the provided formula
+# Display Transition Matrix
+st.subheader("Transition Probability Matrix")
+transition_matrix = pd.DataFrame(transition_probabilities_initial, index=positions)
+st.write(transition_matrix)
 
-next_year_projections = []
-for i, position in enumerate(positions):
-    projected = current_workforce_initial[i] * transition_probabilities_initial[position][i]
-    next_year_projections.append(projected)
+# Visualization - Current vs. Projected Workforce
+df_visualization = pd.DataFrame({
+    "Position": positions,
+    "Current Workforce": current_workforce_initial,
+    "Projected Workforce": df_initial["Next Year Projected"]
+})
 
-
+fig = px.bar(df_visualization, x="Position", y=["Current Workforce", "Projected Workforce"],
+             title="Current vs. Projected Workforce",
+             labels={"value": "Number of Employees", "variable": "Workforce"},
+             barmode="group")
+st.plotly_chart(fig)
 
 # User input for current workforce
 st.header("Calculator:")
-
 st.subheader("Input Current Workforce")
 current_workforce = []
 for position in positions:
