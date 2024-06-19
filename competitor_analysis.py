@@ -8,8 +8,9 @@ from folium.plugins import MarkerCluster, Search
 import matplotlib.pyplot as plt
 
 # Load data
-file_path = 'C:/Users/ryoaki/PycharmProjects/pythonProject/dental_clinic_raw_marikina_1.csv'
+file_path = 'https://raw.githubusercontent.com/pretty1020/streamlit/main/dental_clinic_raw_marikina_1.csv'
 df = pd.read_csv(file_path)
+
 
 # Display the first few rows of the DataFrame to understand its structure
 st.write(df.head())
