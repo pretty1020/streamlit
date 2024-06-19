@@ -112,7 +112,7 @@ else:
 
 # Analyze the location of clinics with most numbers of red or low scores
 st.subheader('Analysis of Clinics with Low Scores')
-low_score_clinics = clinic_data[clinic_data['Average Rating'] < 4]
+low_score_clinics = clinic_data[clinic_data['Average Rating'] < 3]
 
 if not low_score_clinics.empty:
     low_score_count = low_score_clinics.groupby(['LAT', 'LONG', 'Clinic Name', 'Address']).size().reset_index(name='Count')
