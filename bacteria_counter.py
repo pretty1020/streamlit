@@ -37,7 +37,7 @@ This application allows you to upload a microscope image and automatically count
 
 
 ### Contact
-For any issues or questions, please contact Javi :)
+For any issues or questions, please contact Marian P.
 """)
 
 # Upload an image
