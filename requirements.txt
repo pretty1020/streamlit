@@ -1,5 +1,4 @@
 streamlit~=1.25.0
-pandas~=1.5.3
 matplotlib~=3.7.1
 statsmodels~=0.13.5
 scikit-learn~=1.2.2
@@ -79,7 +78,8 @@ tzdata==2024.1
 urllib3==2.2.1
 watchdog==4.0.0
 wordcloud==1.9.3
-pandas~=1.5.3
+pandas==2.2.2
+pandas>=1.5.3,<1.6.dev0
 matplotlib~=3.7.1
 statsmodels~=0.13.5
 scikit-learn==1.2.2
