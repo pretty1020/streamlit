@@ -71,7 +71,6 @@ st-paywall==0.1.6
 streamlit==1.33.0
 stripe==9.2.0
 tenacity==8.2.3
-textblob==0.15.3
 toml==0.10.2
 toolz==0.12.1
 tornado==6.4
