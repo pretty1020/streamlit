@@ -134,8 +134,6 @@ else:
     forecast_data.columns = ["Week", "Shrinkage"]
     forecast_data.set_index("Week", inplace=True)
 
-    # Advanced Data Analytics
-    st.markdown("#### Advanced Data Analytics")
 
     # Linear Regression Analysis
     X = data[["Planned Hours"]]
