@@ -71,5 +71,3 @@ numpy==1.24.3
 prophet==1.2.1
 watchdog==4.0.0
 Cython==0.29.36
-streamlit==1.25.0
-
