@@ -1,7 +1,7 @@
 streamlit==1.25.0
 matplotlib==3.7.1
 statsmodels==0.13.5
-scikit-learn==1.2.2
+scikit-learn==1.2.0
 scipy==1.10.1
 nltk==3.8.1
 plotly==5.9.0
@@ -67,7 +67,7 @@ tqdm==4.66.4
 typing_extensions==4.11.0
 tzdata==2024.1
 urllib3==2.2.1
-numpy>=1.26.0,<1.27.0
+numpy==1.24.3
 prophet==1.2.1
 watchdog==4.0.0
-Cython==3.0.11
+Cython==0.29.36
