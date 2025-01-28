@@ -1,3 +1,7 @@
+git add runtime.txt requirements.txt
+git commit -m "Specify Python 3.10 for deployment"
+git push
+
 import streamlit as st
 import pandas as pd
 import numpy as np
