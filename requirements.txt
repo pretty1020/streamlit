@@ -77,6 +77,4 @@ statsmodels==0.13.5
 prophet==1.2.1
 tensorflow-cpu==2.10.0
 setuptools>=65.5.1
-prophet==1.2.1
 watchdog==4.0.0
-
