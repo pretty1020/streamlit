@@ -70,5 +70,5 @@ numpy>=1.25.0
 Cython==0.29.36
 watchdog==4.0.0
 cmdstanpy>=1.0.0
-prophet
-tensorflow-cpu==2.11.0
+prophet==1.1.6
+tensorflow-cpu==2.16.1
