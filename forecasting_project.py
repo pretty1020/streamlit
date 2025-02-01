@@ -54,7 +54,7 @@ else:
     data = pd.DataFrame()
 
 # Validate required columns
-required_columns = ["date", "volume", "lob", "channel"]
+required_columns = ["Date", "Volume", "Lob", "Channel"]
 if not data.empty and not all(col in data.columns for col in required_columns):
     st.error(f"Uploaded data must contain the following columns: {', '.join(required_columns)}")
     data = pd.DataFrame()
