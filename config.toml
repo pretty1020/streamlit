@@ -1,8 +1,8 @@
 [server]
 python_version = "3.10"
 [theme]
-primaryColor="#13406d"
-backgroundColor="#8cc6f5"
-secondaryBackgroundColor="#f9f1f1"
-textColor="#040831"
+base="light"
+primaryColor="#7f0f0f"
+backgroundColor="#b3fde9"
 font="serif"
+
