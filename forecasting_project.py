@@ -182,7 +182,7 @@ with tab2:
     - **AHT (Average Handle Time):** The average time to handle a call, including talk and wrap-up time.
     - **Occupancy Rate:** Percentage of time agents spend handling calls versus waiting.
     - **Shrinkage:** Time lost due to breaks, meetings, training, or absences.
-    - **SCF (Service Challenge Factor):** The limitations and constraints that affect how you can schedule employees in a workforce.
+    - **SCF (Schedule Challenge Factor):** The limitations and constraints that affect how you can schedule employees in a workforce.
     """)
 
     col1, col2 = st.columns(2)
@@ -197,7 +197,7 @@ with tab2:
     with col2:
         st.subheader("👥 Workforce Calculation")
         weekly_hours = st.number_input("Work Hours per Week", min_value=1, max_value=168, value=40)
-        scf = st.number_input("Service Challenge Factor (SCF)", min_value=1.0, value=1.01)
+        scf = st.number_input("Schedule Challenge Factor (SCF)", min_value=1.0, value=1.01)
 
     # FTE Calculation
     if st.button("Calculate Required FTE"):
