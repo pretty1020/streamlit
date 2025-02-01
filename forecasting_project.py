@@ -38,11 +38,13 @@ if uploaded_file:
         elif uploaded_file.name.endswith(".xlsx"):
             try:
                 import openpyxl  # Ensure openpyxl is installed
+
                 data = pd.read_excel(uploaded_file, engine="openpyxl")
             except ImportError:
-                st.error("Missing dependency: `openpyxl` is required for Excel files. Install it using `pip install openpyxl`.")
+                st.error(
+                    "Missing dependency: `openpyxl` is required for Excel files. Install it using `pip install openpyxl`.")
                 data = pd.DataFrame()
-        
+
         data.columns = map(str.lower, data.columns)  # Ensure lowercase column names
         data["date"] = pd.to_datetime(data["date"])  # Convert "date" column to datetime
 
@@ -54,7 +56,7 @@ else:
     data = pd.DataFrame()
 
 # Validate required columns
-required_columns = ["Date", "Volume", "Lob", "Channel"]
+required_columns = ["date", "volume", "lob", "channel"]
 if not data.empty and not all(col in data.columns for col in required_columns):
     st.error(f"Uploaded data must contain the following columns: {', '.join(required_columns)}")
     data = pd.DataFrame()
@@ -63,6 +65,7 @@ if not data.empty and not all(col in data.columns for col in required_columns):
 if not data.empty:
     st.write("**Dataset Preview:**")
     st.write(data.head())
+
 
 # Forecasting function
 def forecast_with_methods(data, frequency):
@@ -112,7 +115,8 @@ def forecast_with_methods(data, frequency):
         results["Prophet"] = {
             "forecast": prophet_forecast["yhat"],
             "MAE": mean_absolute_error(data["volume"], prophet_model.predict(prophet_data)["yhat"][: len(data)]),
-            "RMSE": np.sqrt(mean_squared_error(data["volume"], prophet_model.predict(prophet_data)["yhat"][: len(data)])),
+            "RMSE": np.sqrt(
+                mean_squared_error(data["volume"], prophet_model.predict(prophet_data)["yhat"][: len(data)])),
         }
         forecast_data["Prophet"] = prophet_forecast["yhat"].values
         forecast_data["Date"] = prophet_forecast["ds"].values
@@ -120,6 +124,7 @@ def forecast_with_methods(data, frequency):
         st.warning(f"Prophet failed: {e}")
 
     return results, forecast_data
+
 
 if not data.empty:
     # Display forecast levels
