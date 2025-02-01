@@ -1,7 +1,7 @@
 pip==25.0
 setuptools==69.0.0
 wheel==0.41.2
-streamlit==1.25.0
+streamlit==1.27.0
 matplotlib==3.7.1
 nltk==3.8.1
 plotly==5.9.0
@@ -69,8 +69,8 @@ urllib3==2.2.1
 numpy>=1.25.0  # Upgraded for compatibility
 Cython==0.29.36
 watchdog==4.0.0
-cmdstanpy>=1.0.0
-prophet==1.2.1
+cmdstanpy
+prophet
 tensorflow-cpu==2.13.0  # Works with Python 3.9
 scipy==1.9.3            # Compatible with Python 3.9
 scikit-learn==1.2.2     # Compatible version
