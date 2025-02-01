@@ -192,7 +192,7 @@ with tab2:
         volume = st.number_input("Expected Call Volume per Interval", min_value=0, value=1000)
         aht = st.number_input("Average Handle Time (AHT) in Minutes", min_value=0.1, value=13.5)
         occupancy = st.slider("Occupancy Rate (%)", min_value=50, max_value=100, value=70)
-        shrinkage = st.slider("Total Shrinkage (%)", min_value=0, max_value=100, value=40)
+        shrinkage = st.slider("Total Shrinkage (%)", min_value=0, max_value=100, value=20)
 
     with col2:
         st.subheader("👥 Workforce Calculation")
