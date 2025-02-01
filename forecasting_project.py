@@ -24,24 +24,13 @@ st.sidebar.markdown("""
 st.sidebar.header("User Guide")
 st.sidebar.markdown("""
 1. **Upload Data:** Upload your own dataset. Ensure it has `Date`, `Volume`, `LOB`, and `Channel` columns.
-2. **Default Data:** If no data is uploaded, the default dataset will be used.
-3. **Forecasting Levels:** Daily (Mon-Sun), Weekly (Week 1, 2, ...), Monthly (Jan-Dec).
-4. **Forecast Data:** Filter forecasted results by Channel and download the forecast as a CSV file.
+2. **Forecasting Levels:** Daily (Mon-Sun), Weekly (Week 1, 2, ...), Monthly (Jan-Dec).
+3. **Forecast Data:** Filter forecasted results by Channel and download the forecast as a CSV file.
 """)
-
-# Load default dataset
-def load_default_data():
-    file_path = "C:/Users/ryoaki/Downloads/updated_dummy_forecasting_data.xlsx"
-    try:
-        data = pd.read_excel(file_path, sheet_name="Sheet1")
-        data["Date"] = pd.to_datetime(data["Date"])
-        return data[["Date", "Volume", "LOB", "Channel"]]
-    except Exception as e:
-        st.error(f"Error loading default data: {e}")
-        return pd.DataFrame()
 
 # Load user-uploaded data
 uploaded_file = st.file_uploader("Upload your data (CSV or Excel)", type=["csv", "xlsx"])
+
 if uploaded_file:
     try:
         if uploaded_file.name.endswith(".csv"):
@@ -54,7 +43,8 @@ if uploaded_file:
         st.error(f"Error processing uploaded data: {e}")
         data = pd.DataFrame()
 else:
-    data = load_default_data()
+    st.warning("Please upload a dataset to proceed.")
+    data = pd.DataFrame()
 
 # Validate required columns
 required_columns = ["date", "volume", "lob", "channel"]
