@@ -1,3 +1,4 @@
-python3.9
-python3.9-venv
-python3.9-dev
+python3-venv
+python3-dev
+libjpeg-dev
+zlib1g-dev
