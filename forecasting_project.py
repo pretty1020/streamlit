@@ -6,6 +6,14 @@ from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.arima.model import ARIMA
 from prophet import Prophet
 import base64
+# Add deadsnakes PPA for Python 3.10
+apt-get update
+apt-get install -y software-properties-common
+add-apt-repository ppa:deadsnakes/ppa
+apt-get update
+
+# Install Python 3.10 and required packages
+apt-get install -y python3.10 python3.10-venv python3.10-dev
 
 # Define app title
 st.title("Forecasting Tool with Channel Analysis")
