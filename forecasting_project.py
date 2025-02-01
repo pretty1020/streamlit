@@ -204,7 +204,7 @@ with tab2:
         fte_required = ((volume * (aht / 60)) / (occupancy / 100)) / (100 - shrinkage) * scf * weekly_hours/8/2
         st.success(f"Required Full-Time Equivalent (FTE): **{round(fte_required, 2)}**")
 
-    st.subheader("📊 Productivity & Service Level")
+    st.subheader("📊 Handling Capacity and Productive Hours")
     available_fte = st.number_input("Available FTE", min_value=1, value=20)
     monthly_hours = st.number_input("Monthly Work Hours", min_value=1, max_value=744, value=176)
 
