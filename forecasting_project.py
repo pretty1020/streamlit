@@ -28,7 +28,7 @@ st.sidebar.markdown("""
 3. **Forecast Data:** Filter forecasted results by Channel and download the forecast as a CSV file.
 """)
 
-# Load user-uploaded data
+# Upload dataset
 uploaded_file = st.file_uploader("Upload your data (CSV or Excel)", type=["csv", "xlsx"])
 
 if uploaded_file:
@@ -36,9 +36,16 @@ if uploaded_file:
         if uploaded_file.name.endswith(".csv"):
             data = pd.read_csv(uploaded_file)
         elif uploaded_file.name.endswith(".xlsx"):
-            data = pd.read_excel(uploaded_file)
+            try:
+                import openpyxl  # Ensure openpyxl is installed
+                data = pd.read_excel(uploaded_file, engine="openpyxl")
+            except ImportError:
+                st.error("Missing dependency: `openpyxl` is required for Excel files. Install it using `pip install openpyxl`.")
+                data = pd.DataFrame()
+        
         data.columns = map(str.lower, data.columns)  # Ensure lowercase column names
         data["date"] = pd.to_datetime(data["date"])  # Convert "date" column to datetime
+
     except Exception as e:
         st.error(f"Error processing uploaded data: {e}")
         data = pd.DataFrame()
