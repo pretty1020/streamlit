@@ -14,7 +14,7 @@ folium==0.16.0
 streamlit_folium==0.20.0
 opencv-python==4.10.0.84
 opencv-python-headless==4.10.0.84
-tensorflow-cpu==2.13.0
+tensorflow-cpu==2.15.0  # Keeping the latest compatible version
 altair==5.3.0
 anyio==4.3.0
 attrs==23.2.0
@@ -67,12 +67,9 @@ tqdm==4.66.4
 typing_extensions==4.11.0
 tzdata==2024.1
 urllib3==2.2.1
-numpy==1.24.3
+numpy>=1.25.0  # Upgrading to avoid conflicts
 Cython==0.29.36
-setuptools>=65.5.1
 watchdog==4.0.0
 cmdstanpy>=1.0.0
 prophet==1.2.1
-tensorflow-cpu==2.15.0  # Or downgrade Python
-setuptools
-distutils
+setuptools>=65.5.1  # Ensure setuptools is installed properly
