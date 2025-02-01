@@ -2,3 +2,4 @@ python3-venv
 python3-dev
 libjpeg-dev
 zlib1g-dev
+libpng-dev
