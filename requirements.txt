@@ -1,7 +1,7 @@
 streamlit==1.25.0
 matplotlib==3.7.1
 statsmodels==0.13.5
-scikit-learn==1.2.0
+scikit-learn==1.3.0  # Updated for compatibility
 scipy==1.10.1
 nltk==3.8.1
 plotly==5.9.0
@@ -14,7 +14,7 @@ folium==0.16.0
 streamlit_folium==0.20.0
 opencv-python==4.10.0.84
 opencv-python-headless==4.10.0.84
-tensorflow-cpu==2.15.0  # Keeping the latest compatible version
+tensorflow-cpu==2.15.0  # Removed 2.13.0
 altair==5.3.0
 anyio==4.3.0
 attrs==23.2.0
@@ -67,9 +67,10 @@ tqdm==4.66.4
 typing_extensions==4.11.0
 tzdata==2024.1
 urllib3==2.2.1
-numpy>=1.25.0  # Upgrading to avoid conflicts
+numpy>=1.25.0  # Upgraded for compatibility
 Cython==0.29.36
 watchdog==4.0.0
 cmdstanpy>=1.0.0
 prophet==1.2.1
-setuptools>=65.5.1  # Ensure setuptools is installed properly
+setuptools>=68.0.0  # Fixed distutils issue
+pip>=25.0  # Ensures the latest pip version
