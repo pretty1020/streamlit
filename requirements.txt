@@ -73,3 +73,6 @@ setuptools>=65.5.1
 watchdog==4.0.0
 cmdstanpy>=1.0.0
 prophet==1.2.1
+tensorflow-cpu==2.15.0  # Or downgrade Python
+setuptools
+distutils
