@@ -72,3 +72,4 @@ watchdog==4.0.0
 cmdstanpy>=1.0.0
 prophet==1.1.6
 tensorflow-cpu==2.16.1
+scikit-learn
