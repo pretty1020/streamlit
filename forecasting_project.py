@@ -7,10 +7,6 @@ from statsmodels.tsa.arima.model import ARIMA
 from prophet import Prophet
 import base64
 
-
-# Install Python 3.10 and required packages
-apt-get install -y python3.10 python3.10-venv python3.10-dev
-
 # Define app title
 st.title("Forecasting Tool with Channel Analysis")
 
