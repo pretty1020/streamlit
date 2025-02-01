@@ -1,3 +1,6 @@
+pip==25.0
+setuptools==69.0.0
+wheel==0.41.2
 streamlit==1.25.0
 matplotlib==3.7.1
 nltk==3.8.1
@@ -72,5 +75,3 @@ scipy==1.9.3             # Works with Python 3.10-3.11
 scikit-learn==1.2.2      # Works with Python 3.10-3.11
 statsmodels==0.14.0      # Latest stable version
 prophet==1.2.1
-setuptools>=68.0.0  # Fixed distutils issue
-pip>=25.0  # Ensures the latest pip version
