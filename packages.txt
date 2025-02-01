@@ -1,5 +1,10 @@
+# Essential Build Tools
 build-essential
+
+# Linear Algebra Libraries (for NumPy, SciPy, etc.)
 libatlas-base-dev
 gfortran
-python3-distutils
+
+# Python Package Management
 python3-pip
+python3-distutils
