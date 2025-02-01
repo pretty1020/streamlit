@@ -74,3 +74,4 @@ prophet==1.1.6
 tensorflow-cpu==2.16.1
 scikit-learn
 statsmodels==0.14.0
+openpyxl
