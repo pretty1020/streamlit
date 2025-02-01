@@ -3,5 +3,4 @@ libatlas-base-dev
 gfortran
 python3-distutils
 python3.10
-python3.10-dev
 python3-pip
