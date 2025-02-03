@@ -184,6 +184,7 @@ with tab2:
     - **Shrinkage:** Time lost due to breaks, meetings, training, or absences.
     - **SCF (Schedule Challenge Factor):** The limitations and constraints that affect how you can schedule employees in a workforce.
     """)
+    st.sidebar.header("For any concerns or issues, feel free to reach out to Marian at mpailden@gmail.com")
 
     col1, col2 = st.columns(2)
 
