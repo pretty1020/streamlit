@@ -125,3 +125,48 @@ with tab1:
         error_table = pd.DataFrame(results).T[["MAE", "RMSE"]]
         st.write("**📊 Model Error Comparison (Lower is Better):**")
         st.dataframe(error_table)
+### 🧮 TAB 2: WORKFORCE MANAGEMENT CALCULATOR ###
+with tab2:
+    st.title("🧮 Workforce Management Calculator")
+
+    # Sidebar: Definitions for Workforce Planning
+    st.sidebar.header("Definitions (Workforce Calculator)")
+    st.sidebar.markdown("""
+    - **FTE (Full-Time Equivalent):** The number of full-time employees required.
+    - **Call Volume:** Expected number of incoming calls per interval.
+    - **AHT (Average Handle Time):** The average time to handle a call, including talk and wrap-up time.
+    - **Occupancy Rate:** Percentage of time agents spend handling calls versus waiting.
+    - **Shrinkage:** Time lost due to breaks, meetings, training, or absences.
+    - **SCF (Schedule Challenge Factor):** The limitations and constraints that affect how you can schedule employees in a workforce.
+    """)
+    st.sidebar.markdown("[For any concerns or issues,feel free to reach out to Marian via Linkedin](https://www.linkedin.com/in/marian1020/)")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("📞 Call Volume Forecast")
+        volume = st.number_input("Expected Call Volume per Interval", min_value=0, value=1000)
+        aht = st.number_input("Average Handle Time (AHT) in Minutes", min_value=0.1, value=13.5)
+        occupancy = st.slider("Occupancy Rate (%)", min_value=50, max_value=100, value=70)
+        shrinkage = st.slider("Total Shrinkage (%)", min_value=0, max_value=100, value=20)
+
+    with col2:
+        st.subheader("👥 Workforce Calculation")
+        weekly_hours = st.number_input("Work Hours per Week", min_value=1, max_value=168, value=40)
+        scf = st.number_input("Schedule Challenge Factor (SCF)", min_value=1.0, value=1.01)
+
+    # FTE Calculation
+    if st.button("Calculate Required FTE"):
+        fte_required = ((volume * (aht / 60)) / (occupancy / 100)) / (100 - shrinkage) * scf * weekly_hours/8/2
+        st.success(f"Required Full-Time Equivalent (FTE): **{round(fte_required, 2)}**")
+
+    st.subheader("📊 Handling Capacity and Productive Hours")
+    available_fte = st.number_input("Available FTE", min_value=1, value=20)
+    monthly_hours = st.number_input("Monthly Work Hours", min_value=1, max_value=744, value=176)
+
+    if st.button("Calculate Capacity"):
+        handling_capacity = (available_fte * monthly_hours) * (occupancy / 100) / (aht / 60)
+        st.success(f"Estimated Handling Capacity: **{round(handling_capacity)} calls per month**")
+
+        productive_hours = available_fte * monthly_hours
+        st.success(f"Estimated Productive Hours: **{round(productive_hours)} hours per month**")
