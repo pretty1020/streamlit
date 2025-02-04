@@ -31,6 +31,7 @@ with tab1:
         3. **Forecast Data:** Filter forecasted results by Channel and download the forecast as a CSV file.
         """)
 
+
     uploaded_file = st.file_uploader("Upload your data (CSV or Excel)", type=["csv", "xlsx"])
 
     if uploaded_file:
@@ -50,11 +51,6 @@ with tab1:
     else:
         data = pd.DataFrame()
 
-    required_columns = ["date", "volume", "lob", "channel"]
-    if not data.empty and not all(col in data.columns for col in required_columns):
-        st.error(f"Uploaded data must contain the following columns: {', '.join(required_columns)}")
-        data = pd.DataFrame()
-
     if not data.empty:
         st.write("**Dataset Preview:**")
         st.write(data.head())
@@ -63,45 +59,27 @@ with tab1:
         selected_channel = st.selectbox("Filter Forecast by Channel:", unique_channels)
         filtered_data = data[data["channel"] == selected_channel].copy()
 
-        frequency_map = {"Daily": "D", "Weekly": "W-MON", "Monthly": "M"}
-        level = st.selectbox("Choose Forecasting Level:", list(frequency_map.keys()))
-        frequency = frequency_map[level]
+        level = st.selectbox("Choose Forecasting Level:", ["Daily", "Weekly", "Monthly"])
+
+        if level == "Weekly":
+            start_of_week = st.radio("Select Start of the Week:", ["Sunday", "Monday"], index=1)
+            frequency = "W-SUN" if start_of_week == "Sunday" else "W-MON"
+        else:
+            frequency = {"Daily": "D", "Monthly": "M"}.get(level, "D")
 
         def aggregate_data(df, freq):
             return df.resample(freq, on="date").sum().reset_index()
 
         def forecast_with_methods(df, freq):
             results = {}
+            error_measures = {}
             df = aggregate_data(df, freq)
             df.set_index("date", inplace=True)
             df = df.asfreq(freq).fillna(method="ffill")
 
             forecast_data = pd.DataFrame()
             forecast_dates = pd.date_range(start=df.index[-1], periods=30, freq=freq)
-
-            try:
-                arima_model = ARIMA(df["volume"], order=(5, 1, 0)).fit()
-                arima_forecast = arima_model.forecast(steps=30)
-                results["ARIMA"] = {
-                    "forecast": arima_forecast,
-                    "MAE": mean_absolute_error(df["volume"], arima_model.fittedvalues),
-                    "RMSE": np.sqrt(mean_squared_error(df["volume"], arima_model.fittedvalues)),
-                }
-                forecast_data["ARIMA"] = arima_forecast
-            except Exception as e:
-                st.warning(f"ARIMA failed: {e}")
-
-            try:
-                hw_model = ExponentialSmoothing(df["volume"], seasonal="add", seasonal_periods=12).fit()
-                hw_forecast = hw_model.forecast(30)
-                results["Holt-Winters"] = {
-                    "forecast": hw_forecast,
-                    "MAE": mean_absolute_error(df["volume"], hw_model.fittedvalues),
-                    "RMSE": np.sqrt(mean_squared_error(df["volume"], hw_model.fittedvalues)),
-                }
-                forecast_data["Holt-Winters"] = hw_forecast
-            except Exception as e:
-                st.warning(f"Holt-Winters failed: {e}")
+            forecast_data["Date"] = forecast_dates
 
             try:
                 prophet_data = df.reset_index().rename(columns={"date": "ds", "volume": "y"})
@@ -109,37 +87,62 @@ with tab1:
                 prophet_model.fit(prophet_data)
                 future = prophet_model.make_future_dataframe(periods=30, freq=freq)
                 prophet_forecast = prophet_model.predict(future)[["ds", "yhat"]].iloc[-30:]
-                results["Prophet"] = {
-                    "forecast": prophet_forecast["yhat"],
-                    "MAE": mean_absolute_error(df["volume"], prophet_model.predict(prophet_data)["yhat"][: len(df)]),
-                    "RMSE": np.sqrt(mean_squared_error(df["volume"], prophet_model.predict(prophet_data)["yhat"][: len(df)])),
-                }
+                results["Prophet"] = prophet_forecast["yhat"].values
                 forecast_data["Prophet"] = prophet_forecast["yhat"].values
+                error_measures["Prophet"] = {
+                    "MAE": mean_absolute_error(df["volume"], prophet_model.predict(prophet_data)["yhat"][ : len(df)]),
+                    "RMSE": np.sqrt(mean_squared_error(df["volume"], prophet_model.predict(prophet_data)["yhat"][ : len(df)]))
+                }
             except Exception as e:
                 st.warning(f"Prophet failed: {e}")
 
-            forecast_data["Date"] = forecast_dates
-            return results, forecast_data
+            try:
+                hw_model = ExponentialSmoothing(df["volume"], seasonal="add", seasonal_periods=12).fit()
+                hw_forecast = hw_model.forecast(30)
+                results["Holt-Winters"] = hw_forecast.values
+                forecast_data["Holt-Winters"] = hw_forecast.values
+                error_measures["Holt-Winters"] = {
+                    "MAE": mean_absolute_error(df["volume"], hw_model.fittedvalues),
+                    "RMSE": np.sqrt(mean_squared_error(df["volume"], hw_model.fittedvalues))
+                }
+            except Exception as e:
+                st.warning(f"Holt-Winters failed: {e}")
 
-        results, forecast_data = forecast_with_methods(filtered_data, frequency)
+            try:
+                arima_model = ARIMA(df["volume"], order=(5, 1, 0)).fit()
+                arima_forecast = arima_model.forecast(steps=30)
+                results["ARIMA"] = arima_forecast.values
+                forecast_data["ARIMA"] = arima_forecast.values
+                error_measures["ARIMA"] = {
+                    "MAE": mean_absolute_error(df["volume"], arima_model.fittedvalues),
+                    "RMSE": np.sqrt(mean_squared_error(df["volume"], arima_model.fittedvalues))
+                }
+            except Exception as e:
+                st.warning(f"ARIMA failed: {e}")
+
+            return results, forecast_data, error_measures
+
+        results, forecast_data, error_measures = forecast_with_methods(filtered_data, frequency)
 
         st.write(f"**Forecasting Results for {selected_channel} ({level}):**")
-        for method, res in results.items():
-            st.write(f"### {method}")
-            st.line_chart(res["forecast"])
-            st.write(f"MAE: {res['MAE']:.2f}, RMSE: {res['RMSE']:.2f}")
+        for method in ["Prophet", "Holt-Winters", "ARIMA"]:
+            if method in results:
+                st.write(f"### {method}")
+                st.line_chart(results[method])
 
         st.write("**Forecasted Data Table:**")
         st.dataframe(forecast_data)
+
+        st.write("**📊 Error Measure Comparison:**")
+        error_df = pd.DataFrame(error_measures).T
+        st.dataframe(error_df)
 
         csv = forecast_data.to_csv(index=False)
         b64 = base64.b64encode(csv.encode()).decode()
         href = f'<a href="data:file/csv;base64,{b64}" download="forecasted_data.csv">Download CSV File</a>'
         st.markdown(href, unsafe_allow_html=True)
 
-        error_table = pd.DataFrame(results).T[["MAE", "RMSE"]]
-        st.write("**📊 Model Error Comparison (Lower is Better):**")
-        st.dataframe(error_table)
+
 
 
 ### 🧮 TAB 2: WORKFORCE MANAGEMENT CALCULATOR ###
