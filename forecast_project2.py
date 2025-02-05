@@ -85,8 +85,8 @@ with tab1:
                 prophet_data = df.reset_index().rename(columns={"date": "ds", "volume": "y"})
                 prophet_model = Prophet()
                 prophet_model.fit(prophet_data)
-                future = prophet_model.make_future_dataframe(periods=30, freq=freq)
-                prophet_forecast = prophet_model.predict(future)[["ds", "yhat"]].iloc[-30:]
+                future = prophet_model.make_future_dataframe(periods=60, freq=freq)
+                prophet_forecast = prophet_model.predict(future)[["ds", "yhat"]].iloc[-60:]
                 results["Prophet"] = prophet_forecast["yhat"].values
                 forecast_data["Prophet"] = prophet_forecast["yhat"].values
                 error_measures["Prophet"] = {
@@ -98,7 +98,7 @@ with tab1:
 
             try:
                 hw_model = ExponentialSmoothing(df["volume"], seasonal="add", seasonal_periods=12).fit()
-                hw_forecast = hw_model.forecast(30)
+                hw_forecast = hw_model.forecast(60)
                 results["Holt-Winters"] = hw_forecast.values
                 forecast_data["Holt-Winters"] = hw_forecast.values
                 error_measures["Holt-Winters"] = {
@@ -109,8 +109,8 @@ with tab1:
                 st.warning(f"Holt-Winters failed: {e}")
 
             try:
-                arima_model = ARIMA(df["volume"], order=(5, 1, 0)).fit()
-                arima_forecast = arima_model.forecast(steps=30)
+                arima_model = ARIMA(df["volume"], order=(1, 1, 0)).fit()
+                arima_forecast = arima_model.forecast(steps=60)
                 results["ARIMA"] = arima_forecast.values
                 forecast_data["ARIMA"] = arima_forecast.values
                 error_measures["ARIMA"] = {
