@@ -78,7 +78,7 @@ with tab1:
             df = df.asfreq(freq).fillna(method="ffill")
 
             forecast_data = pd.DataFrame()
-            forecast_dates = pd.date_range(start=df.index[-1], periods=30, freq=freq)
+            forecast_dates = pd.date_range(start=df.index[-1], periods=60, freq=freq)
             forecast_data["Date"] = forecast_dates
 
             try:
