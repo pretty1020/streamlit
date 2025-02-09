@@ -51,6 +51,7 @@ aht_values = {
     "Sale": st.sidebar.number_input("AHT for Sale", min_value=1, value=300),
     "Not Sale": st.sidebar.number_input("AHT for Not Sale", min_value=1, value=280),
 }
+   st.sidebar.markdown("[For any concerns or issues,feel free to reach out to Marian via Linkedin](https://www.linkedin.com/in/marian1020/)")
 
 # Define call flow structure
 call_flow = {
