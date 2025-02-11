@@ -6,3 +6,9 @@ primaryColor="#7f0f0f"
 backgroundColor="#b3ecfd"
 font="serif"
 
+[theme]
+primaryColor="#1b200e"
+backgroundColor="#abe2e2"
+secondaryBackgroundColor="#f4faff"
+textColor="#042f27"
+font="serif"
