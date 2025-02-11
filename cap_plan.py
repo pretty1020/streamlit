@@ -20,7 +20,7 @@ if tab == "User Guide":
 
     st.markdown("""
     ## **User Guide**
-    - **Step 1:** Enter forecast inputs (**Call Volume, AHT, Occupancy, Shrinkage, SCF**).
+    - **Step 1:** Enter forecast inputs (**Call Volume, AHT (in seconds), Occupancy, Shrinkage, SCF**).
     - **Step 2:** Define **Starting FTE Count** and **Attrition Rate per Week**.
     - **Step 3:** The tool **auto-calculates** the required FTE based on inputs.
     - **Step 4:** Enter planned **New FTE hires per week**.
