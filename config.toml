@@ -12,3 +12,9 @@ backgroundColor="#abe2e2"
 secondaryBackgroundColor="#f4faff"
 textColor="#042f27"
 font="serif"
+
+[theme]
+base="light"
+primaryColor="#2d828e"
+backgroundColor="#a8e2e4"
+textColor="#123843"
