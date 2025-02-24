@@ -42,7 +42,7 @@ with tab1:
     aht = st.number_input("Average Handle Time (seconds)", min_value=0, value=810)
     occupancy = st.slider("Occupancy (%)", min_value=0.5, max_value=1.0, value=0.7, step=0.1)
     shrinkage = st.slider("Shrinkage (%)", min_value=0.0, max_value=1.0, value=0.2, step=0.1)
-    scf = st.number_input("Service Challenge Factor (SCF)", min_value=1.0, max_value=2.0, value=1.01, step=0.1)
+    scf = st.number_input("Schedule Challenge Factor (SCF)", min_value=1.0, max_value=2.0, value=1.01, step=0.1)
     concurrency = 1.0
     if channel_type == "Back Office (Cases, Chat, Email, etc.)":
         concurrency = st.number_input("Concurrency (e.g., 1.5 for Chat)", min_value=1.0, value=1.5, step=0.1)
