@@ -10,7 +10,7 @@ from sklearn.linear_model import LinearRegression
 st.set_page_config(page_title="Sales Analytics Dashboard", layout="wide")
 
 # Title
-st.title("✨ Sales Analytics and Forecasting Dashboard ✨")
+st.title("✨ Sales Analytics and Forecasting Tool ✨")
 
 # Sidebar Section: File Upload
 st.sidebar.header("📂 Upload Your Data")
@@ -123,6 +123,9 @@ with tab3:
         st.write(
             f"💡 **Interpretation:** The analysis shows that {independent_variable} initially increases sales, but extremely high values cause a decline. This suggests an optimal range for maximizing sales.")
 
+    # Interpretation of Regression Coefficients
+    coef = model.params[1]
+    st.write(f"💡The regression model estimates that for every unit increase in {independent_variable}, the Sales Count {'increases' if coef > 0 else 'decreases'} by approximately {abs(coef):.2f}. This insight can be used to optimize strategies for improving sales performance.")
 
 
 # --- Tab 2: Correlation Analysis ---
