@@ -64,7 +64,7 @@ with tabs[3]:
 
 # 📊 Learning Curve Analysis Tab
 with tabs[0]:
-    st.title("📊 Nesting Agent Learning Curve Tracker")
+    st.title("📊 Nesting Agent Learning Curve Analytics Tool")
     st.markdown("🔍 **Upload agent performance data to analyze learning curves and AHT trends.**")
 
     # 📂 Upload CSV File
