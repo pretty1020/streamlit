@@ -165,11 +165,11 @@ with tabs[2]:
     # Glowy Prediction Line
     ax.plot(weeks_future, predictions, label="Predicted AHT", color="cyan", linewidth=2.5, alpha=0.8)
     ax.fill_between(weeks_future.flatten(), lower_bound, upper_bound, color='cyan', alpha=0.2,
-                    label="95% Confidence Interval")
+                    )
 
     ax.set_xlabel("Week")
     ax.set_ylabel("AHT (Seconds)")
-    ax.set_title("Predicted AHT Over Time with Confidence Intervals", fontsize=12)
+    ax.set_title("Predicted AHT Over Time", fontsize=12)
     ax.legend()
     ax.grid(color='gray', linestyle='dotted', linewidth=0.5)
 
