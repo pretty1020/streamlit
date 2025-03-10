@@ -27,7 +27,7 @@ def generate_dummy_data():
 
 
 # Streamlit UI Layout with Tabs
-st.set_page_config(page_title="Nesting Agent Learning Curve Tracker", layout="wide")
+st.set_page_config(page_title="Nesting Agent Learning Curve Analytics Tool", layout="wide")
 
 tabs = st.tabs(
     ["📊 Learning Curve Analysis", "📈 Visualizations & Charts", "📊 Advanced Analytics", "📖 User Guide & Definitions"])
@@ -38,7 +38,7 @@ with tabs[3]:
 
     st.subheader("🔹 What is this tool?")
     st.markdown("""
-    This **Nesting Agent Learning Curve Tracker** helps call centers monitor the performance of new agents in training (nesting phase) by:
+    This **Nesting Agent Learning Curve Analytics Tool** helps call centers monitor and analyze the performance of new agents in training (nesting phase) by:
     - **Tracking Weekly AHT improvement**
     - **Analyzing how many weeks it takes to reach a target AHT**
     - **Visualizing the learning curve of new agents**
