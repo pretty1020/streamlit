@@ -76,3 +76,5 @@ networkx
 scikit-learn
 statsmodels==0.14.0
 openpyxl
+pillow==10.0.1
+freetype-py==2.3.0
