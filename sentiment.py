@@ -119,7 +119,7 @@ with tabs[0]:
     # Word Cloud
     st.subheader("☁️ Word Cloud of Comments")
     all_text = " ".join(df['Comment'])
-    wordcloud = WordCloud(font_path="/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf").generate("test")
+    wordcloud = WordCloud(font_path="C:/Windows/Fonts/Arial.ttf").generate("Sample Text")
     fig, ax = plt.subplots()
     ax.imshow(wordcloud, interpolation='bilinear')
     ax.axis("off")
