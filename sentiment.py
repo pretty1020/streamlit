@@ -5,11 +5,9 @@ import seaborn as sns
 from textblob import TextBlob
 from wordcloud import WordCloud
 import subprocess
+import sys
 import spacy
 from io import BytesIO
-
-import subprocess
-import sys
 
 # Ensure SpaCy is installed
 try:
@@ -56,8 +54,8 @@ df = pd.DataFrame(dummy_data)
 df = process_data(df)
 
 # Streamlit UI
-st.set_page_config(page_title="Customer Sentiment Analysis ", layout="wide")
-st.title("📊 Customer Sentiment Analysis Tool")
+st.set_page_config(page_title="Customer Sentiment Analysis", layout="wide")
+st.title("📊 Customer Sentiment Analysis")
 
 # Sidebar - File Upload
 st.sidebar.header("Upload Customer Feedback Data")
