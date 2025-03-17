@@ -105,9 +105,11 @@ with tabs[0]:
     {'positive' if positive_count > negative_count else 'negative' if negative_count > positive_count else 'neutral'}.
     """)
 
-# Advanced Analysis Tab
 with tabs[1]:
-  def generate_wordcloud(text):
+    st.subheader("✨ Word Cloud")
+
+
+    def generate_wordcloud(text):
         """Generate a simple colorful Word Cloud."""
         wordcloud = WordCloud(
             width=800, height=400,
@@ -120,6 +122,14 @@ with tabs[1]:
         plt.imshow(wordcloud, interpolation='bilinear')
         plt.axis("off")
         st.pyplot(plt)
+
+
+    # Generate Word Cloud if data exists
+    if not df.empty:
+        all_text = " ".join(df['Comment'].dropna())
+        generate_wordcloud(all_text)
+    else:
+        st.warning("No comments available for Word Cloud generation.")
 
     # 🔍 Most Common Words in Sentiments
     st.subheader("🔍 Most Common Words in Positive & Negative Feedback")
@@ -141,6 +151,7 @@ with tabs[1]:
         st.write("**Most Frequent Words in Negative Comments**")
         common_negative = get_common_words("Negative")
         st.write(pd.DataFrame(common_negative, columns=["Word", "Frequency"]))
+
 
 # 📖 User Guide Tab
 with tabs[2]:
