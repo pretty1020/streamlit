@@ -77,4 +77,4 @@ scikit-learn
 statsmodels==0.14.0
 openpyxl
 pillow==9.4.0
-spacy
+spacy==3.7.2
