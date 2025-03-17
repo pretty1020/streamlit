@@ -99,34 +99,35 @@ with tabs[0]:
 
     # Word Cloud Generation
     st.subheader("☁️ Word Cloud of Comments")
-def generate_wordcloud(text):
-    """Generate a Word Cloud while ensuring font compatibility across platforms."""
-    import os
-    from wordcloud import WordCloud
-    import matplotlib.pyplot as plt
 
-    # Check available fonts (Linux, macOS, Windows)
-    font_path = None
-    possible_fonts = [
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",  # Linux (Streamlit Cloud)
-        "/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf",  # Alternative Linux font
-        "/System/Library/Fonts/Supplemental/Arial.ttf",  # macOS
-        "C:/Windows/Fonts/Arial.ttf"  # Windows
-    ]
-    
-    for path in possible_fonts:
-        if os.path.exists(path):
-            font_path = path
-            break
+    def generate_wordcloud(text):
+        """Generate a Word Cloud while ensuring font compatibility across platforms."""
+        import os
+        from wordcloud import WordCloud
+        import matplotlib.pyplot as plt
 
-    wordcloud = WordCloud(
-        width=800, height=400, background_color='white', font_path=font_path
-    ).generate(text)
+        # Check available fonts (Linux, macOS, Windows)
+        font_path = None
+        possible_fonts = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",  # Linux (Streamlit Cloud)
+            "/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf",  # Alternative Linux font
+            "/System/Library/Fonts/Supplemental/Arial.ttf",  # macOS
+            "C:/Windows/Fonts/Arial.ttf"  # Windows
+        ]
 
-    plt.figure(figsize=(10, 5))
-    plt.imshow(wordcloud, interpolation='bilinear')
-    plt.axis("off")
-    st.pyplot(plt)
+        for path in possible_fonts:
+            if os.path.exists(path):
+                font_path = path
+                break
+
+        wordcloud = WordCloud(
+            width=800, height=400, background_color='white', font_path=font_path
+        ).generate(text)
+
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis("off")
+        st.pyplot(plt)
 
     # Generate Word Cloud if data exists
     if not df.empty:
