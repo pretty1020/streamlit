@@ -113,16 +113,7 @@ def generate_wordcloud(text):
     from wordcloud import WordCloud
     import matplotlib.pyplot as plt
 
-    # Check available fonts (Linux, macOS, Windows)
-    font_path = None
-    possible_fonts = [
-              "C:/Windows/Fonts/Arial.ttf"  # Windows
-    ]
-    
-    for path in possible_fonts:
-        if os.path.exists(path):
-            font_path = path
-            break
+
 
     wordcloud = WordCloud(
         width=800, height=400, background_color='white', font_path=font_path
