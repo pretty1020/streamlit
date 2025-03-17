@@ -4,8 +4,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from textblob import TextBlob
 from wordcloud import WordCloud
-import spacy
 from io import BytesIO
+import os
+import spacy
+import subprocess
 
 # Load SpaCy Model
 nlp = spacy.load("en_core_web_sm")
