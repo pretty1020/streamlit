@@ -50,7 +50,7 @@ if uploaded_file:
         df = process_data(df)
 
 # Tabs
-tabs = st.tabs(["📊 Advanced Analysis", "📖 User Guide & Definitions"])
+tabs = st.tabs(["📊 Sentiment Analysis", "📖 User Guide & Recommendations"])
 
 with tabs[0]:
     st.subheader("📊 Sentiment Summary")
@@ -68,30 +68,15 @@ with tabs[0]:
     # 📊 Sentiment Distribution
     st.subheader("📌 Sentiment Distribution")
     fig, ax = plt.subplots()
-    sns.set_style("white")
     sns.countplot(x=df['Sentiment'], palette='coolwarm', ax=ax, edgecolor='gold', linewidth=2)
-    ax.set_facecolor("#0e1117")
-    fig.patch.set_facecolor("#0e1117")
-    ax.spines['bottom'].set_color('#FFD700')
-    ax.spines['top'].set_color('#FFD700')
-    ax.spines['right'].set_color('#FFD700')
-    ax.spines['left'].set_color('#FFD700')
-    plt.xticks(color='white')
-    plt.yticks(color='white')
-    plt.setp(ax.patches, linewidth=1.5, edgecolor='gold')
     st.pyplot(fig)
 
-    # 📌 Interpretation of results
-    st.subheader("📌 Interpretation of Results")
-    positive_count = df[df['Sentiment'] == 'Positive'].shape[0]
-    neutral_count = df[df['Sentiment'] == 'Neutral'].shape[0]
-    negative_count = df[df['Sentiment'] == 'Negative'].shape[0]
-    total = df.shape[0]
-
-    st.markdown(f"""
-    - **Positive Comments**: {positive_count} ({(positive_count / total) * 100:.2f}%) of the total.
-    - **Neutral Comments**: {neutral_count} ({(neutral_count / total) * 100:.2f}%) of the total.
-    - **Negative Comments**: {negative_count} ({(negative_count / total) * 100:.2f}%) of the total.
+    # Interpretation
+    st.markdown("""
+    **📌 Interpretation:**  
+    - A **higher percentage of positive comments** suggests strong customer satisfaction.  
+    - A **higher percentage of negative comments** signals dissatisfaction, requiring urgent action.  
+    - **Neutral comments** indicate customers who are neither happy nor unhappy.  
     """)
 
     # 📈 Sentiment Trends by Customer
@@ -100,6 +85,12 @@ with tabs[0]:
         fig, ax = plt.subplots()
         sns.boxplot(x="Sentiment", y="Polarity", data=df, ax=ax, palette="coolwarm")
         st.pyplot(fig)
+
+        st.markdown("""
+        **📌 Interpretation:**  
+        - A **wide spread of polarity values** for a customer may indicate inconsistent experiences.  
+        - **Highly positive or negative scores** suggest clear customer satisfaction or frustration.  
+        """)
 
     # 📊 Polarity & Subjectivity Distributions
     st.subheader("📌 Polarity & Subjectivity Distributions")
@@ -115,17 +106,35 @@ with tabs[0]:
 
     st.pyplot(fig)
 
-    # 📌 Sentiment by Comment Length
+    st.markdown("""
+    **📌 Interpretation:**  
+    - A **high subjectivity score** means customers share more opinions than facts.  
+    - A **wide spread in polarity values** suggests mixed customer experiences.  
+    """)
+
+    # 📊 Sentiment by Comment Length
     st.subheader("📊 Sentiment by Comment Length")
     fig, ax = plt.subplots()
     sns.boxplot(x="Sentiment", y="Comment_Length", data=df, ax=ax, palette="coolwarm")
     st.pyplot(fig)
+
+    st.markdown("""
+    **📌 Interpretation:**  
+    - **Longer negative comments** may indicate customers expressing detailed dissatisfaction.  
+    - **Short positive comments** suggest quick but strong satisfaction.  
+    """)
 
     # 📊 Correlation Analysis
     st.subheader("📊 Sentiment Correlation Analysis")
     fig, ax = plt.subplots()
     sns.heatmap(df[['Polarity', 'Subjectivity', 'Comment_Length']].corr(), annot=True, cmap='coolwarm', ax=ax)
     st.pyplot(fig)
+
+    st.markdown("""
+    **📌 Interpretation:**  
+    - **Strong correlation between polarity & subjectivity** means customers provide strong opinions.  
+    - **Negative correlation with comment length** may suggest longer complaints.  
+    """)
 
     # 🔍 Most Common Words in Positive & Negative Feedback
     def get_common_words(sentiment, num_words=10):
@@ -147,28 +156,29 @@ with tabs[0]:
         st.write(pd.DataFrame(common_negative, columns=["Word", "Frequency"]))
 
 with tabs[1]:
-    st.subheader("📖 User Guide")
+    st.subheader("📖 Summary of Findings & Actionable Recommendations")
+    
     st.markdown("""
-    **How to Use this App:**
-    1. Upload a CSV file with a **'Comment'** column.
-    2. The system will analyze customer feedback using **sentiment analysis**.
-    3. The dashboard displays:
-       - **Sentiment Summary Table**
-       - **Sentiment Distribution Chart**
-       - **Polarity & Subjectivity Distributions**
-       - **Most Frequent Words in Positive & Negative Feedback**
-       - **Sentiment by Comment Length**
-       - **Sentiment Trends by Customer**
-       - **Correlation Analysis**
-    """)
+    ### **📊 Summary of Findings:**
+    - **Overall Sentiment:**  
+      - Majority of comments are **[Positive/Negative/Neutral]**  
+      - This suggests **[customer satisfaction/dissatisfaction/mixed opinions]**  
+    - **Key Trends:**  
+      - **Frequent keywords in negative comments**: [Common words]  
+      - **Frequent keywords in positive comments**: [Common words]  
+      - **Sentiment trends over time suggest**: [stable, fluctuating, declining, improving sentiment]  
 
-    st.subheader("📌 Definitions")
-    st.markdown("""
-    - **Polarity**: Sentiment score ranging from -1 (negative) to +1 (positive).
-    - **Subjectivity**: How opinion-based the feedback is (0 = fact, 1 = opinion).
-    - **Sentiment Categories**:
-      - **Positive**: Customer feedback with a polarity score > 0.
-      - **Negative**: Customer feedback with a polarity score < 0.
-      - **Neutral**: Feedback with a polarity of 0.
+    ### **🚀 Actionable Recommendations:**
+    **For Leadership Teams:**
+    - If **negative sentiment is high**, consider **service quality improvements & proactive issue resolution**.  
+    - If **neutral comments dominate**, identify factors that drive stronger satisfaction.  
+
+    **For Customer Service Managers:**
+    - **Train support teams** to improve areas mentioned in frequent negative comments.  
+    - **Monitor long complaints** for deeper dissatisfaction insights.  
+
+    **For Product & Marketing Teams:**
+    - **Leverage common positive keywords** in advertising & testimonials.  
+    - Address **frequent negative concerns** to improve product-market fit.  
     """)
 
