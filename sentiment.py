@@ -118,7 +118,7 @@ with tabs[0]:
     # Word Cloud
     st.subheader("☁️ Word Cloud of Comments")
     all_text = " ".join(df['Comment'])
-    wordcloud = WordCloud(width=800, height=400, background_color='black', colormap='coolwarm').generate(all_text)
+    wordcloud = WordCloud(width=800, height=400, background_color='black', colormap='coolwarm', font_path=None).generate(all_text)
     fig, ax = plt.subplots()
     ax.imshow(wordcloud, interpolation='bilinear')
     ax.axis("off")
