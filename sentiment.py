@@ -127,8 +127,8 @@ with tabs[1]:
 
     # Generate Word Cloud if data exists
     if not df.empty:
-        all_text = " ".join(df['Comment'].dropna())
-        generate_wordcloud(all_text)
+        #all_text = " ".join(df['Comment'].dropna())
+        #generate_wordcloud(all_text)
     else:
         st.warning("No comments available for Word Cloud generation.")
 
