@@ -10,6 +10,15 @@ import spacy
 from io import BytesIO
 from PIL import ImageFont
 
+import subprocess
+import sys
+
+# Ensure the latest version of pillow is installed
+try:
+    import PIL
+except ImportError:
+    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "pillow"])
+    import PIL
 
 
 
