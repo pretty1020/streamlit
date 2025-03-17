@@ -3,10 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from textblob import TextBlob
-from wordcloud import WordCloud
-import re
-from collections import Counter
-
 
 # Function to analyze sentiment
 def analyze_sentiment(text):
@@ -16,12 +12,10 @@ def analyze_sentiment(text):
     sentiment = "Positive" if polarity > 0 else "Negative" if polarity < 0 else "Neutral"
     return polarity, subjectivity, sentiment
 
-
 # Function to process data
 def process_data(df):
     df['Polarity'], df['Subjectivity'], df['Sentiment'] = zip(*df['Comment'].apply(analyze_sentiment))
     return df
-
 
 # Dummy Data
 dummy_data = {
@@ -53,7 +47,7 @@ if uploaded_file:
         df = process_data(df)
 
 # Tabs
-tabs = st.tabs(["📊 Sentiment Analysis", "✨ Word Cloud & Advanced Analysis", "📖 User Guide & Definitions"])
+tabs = st.tabs(["📊 Sentiment Analysis", "📖 User Guide & Definitions"])
 
 with tabs[0]:
     st.subheader("📊 Sentiment Summary")
@@ -68,28 +62,23 @@ with tabs[0]:
         mime='text/csv'
     )
 
-    # 📌 Glowy Sentiment Distribution
-    st.subheader("✨ Sentiment Distribution")
+    # Sentiment Distribution
+    st.subheader("📌 Sentiment Distribution")
     fig, ax = plt.subplots()
-    sns.set_style("darkgrid")
-    sns.countplot(x=df['Sentiment'], palette='coolwarm', ax=ax, edgecolor='gold', linewidth=3)
-
+    sns.set_style("white")
+    sns.countplot(x=df['Sentiment'], palette='coolwarm', ax=ax, edgecolor='gold', linewidth=2)
     ax.set_facecolor("#0e1117")
     fig.patch.set_facecolor("#0e1117")
-
-    # Add glow effect to spines
     ax.spines['bottom'].set_color('#FFD700')
     ax.spines['top'].set_color('#FFD700')
     ax.spines['right'].set_color('#FFD700')
     ax.spines['left'].set_color('#FFD700')
-
     plt.xticks(color='white')
     plt.yticks(color='white')
-    plt.setp(ax.patches, linewidth=2, edgecolor='gold')
-
+    plt.setp(ax.patches, linewidth=1.5, edgecolor='gold')
     st.pyplot(fig)
 
-    # 📌 Interpretation of results
+    # Interpretation of results
     st.subheader("📌 Interpretation of Results")
     positive_count = df[df['Sentiment'] == 'Positive'].shape[0]
     neutral_count = df[df['Sentiment'] == 'Neutral'].shape[0]
@@ -103,43 +92,45 @@ with tabs[0]:
 
     Based on the data, the overall sentiment suggests that the majority of customer feedback is 
     {'positive' if positive_count > negative_count else 'negative' if negative_count > positive_count else 'neutral'}.
+    This insight can be used to improve customer service strategies accordingly.
     """)
 
-with tabs[1]:
-    st.subheader("✨ Word Cloud")
+    # 📈 Advanced Analysis: Sentiment Trends Over Time (If Date Available)
+    if 'Date' in df.columns:
+        df['Date'] = pd.to_datetime(df['Date'])
+        df.sort_values('Date', inplace=True)
+        df['Rolling Sentiment'] = df['Polarity'].rolling(window=3, min_periods=1).mean()
 
+        st.subheader("📈 Sentiment Trend Over Time")
+        fig, ax = plt.subplots()
+        sns.lineplot(data=df, x='Date', y='Rolling Sentiment', marker='o', ax=ax)
+        plt.xticks(rotation=45)
+        st.pyplot(fig)
 
-    def generate_wordcloud(text):
-        """Generate a simple colorful Word Cloud."""
-        wordcloud = WordCloud(
-            width=800, height=400,
-            background_color='black',
-            colormap='cool',
-            max_words=100
-        ).generate(text)
+    # 📊 Polarity & Subjectivity Distributions
+    st.subheader("📌 Polarity & Subjectivity Distributions")
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
-        plt.figure(figsize=(10, 5))
-        plt.imshow(wordcloud, interpolation='bilinear')
-        plt.axis("off")
-        st.pyplot(plt)
+    sns.histplot(df['Polarity'], bins=20, kde=True, ax=axes[0], color="blue")
+    axes[0].set_title("Polarity Distribution")
+    axes[0].set_xlabel("Polarity (-1 to 1)")
 
+    sns.histplot(df['Subjectivity'], bins=20, kde=True, ax=axes[1], color="green")
+    axes[1].set_title("Subjectivity Distribution")
+    axes[1].set_xlabel("Subjectivity (0 to 1)")
 
-    # Generate Word Cloud if data exists
-    if not df.empty:
-        all_text = " ".join(df['Comment'].dropna())
-        generate_wordcloud(all_text)
-    else:
-        st.warning("No comments available for Word Cloud generation.")
+    st.pyplot(fig)
 
-    # 🔍 Most Common Words in Sentiments
-    st.subheader("🔍 Most Common Words in Positive & Negative Feedback")
-
+    # 🔍 Most Common Words in Positive & Negative Feedback
+    from collections import Counter
+    import re
 
     def get_common_words(sentiment, num_words=10):
         words = " ".join(df[df['Sentiment'] == sentiment]['Comment']).lower()
         words = re.findall(r'\b\w+\b', words)
         return Counter(words).most_common(num_words)
 
+    st.subheader("🔍 Most Common Words in Positive & Negative Feedback")
 
     col1, col2 = st.columns(2)
     with col1:
@@ -152,19 +143,18 @@ with tabs[1]:
         common_negative = get_common_words("Negative")
         st.write(pd.DataFrame(common_negative, columns=["Word", "Frequency"]))
 
-
-# 📖 User Guide Tab
-with tabs[2]:
+with tabs[1]:
     st.subheader("📖 User Guide")
     st.markdown("""
     **How to Use this App:**
-    1. Upload a CSV file with a **'Comment'** column.
+    1. Upload a CSV file with a **'Comment'** column (optionally, a 'Date' column for trend analysis).
     2. The system will analyze customer feedback using **sentiment analysis**.
     3. The dashboard displays:
        - **Sentiment Summary Table**
        - **Sentiment Distribution Chart**
-       - **Sparkle-Style Word Cloud**
+       - **Polarity & Subjectivity Distributions**
        - **Most Frequent Words in Positive & Negative Feedback**
+       - **Sentiment Trends Over Time** (if a 'Date' column is available)
     """)
 
     st.subheader("📌 Definitions")
