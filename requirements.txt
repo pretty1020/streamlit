@@ -83,3 +83,4 @@ seaborn
 textblob
 wordcloud
 spacy
+pillow==9.5.0
