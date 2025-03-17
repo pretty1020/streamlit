@@ -113,17 +113,11 @@ def generate_wordcloud(text):
     from wordcloud import WordCloud
     import matplotlib.pyplot as plt
 
-
-
-    wordcloud = WordCloud(
-        width=800, height=400, background_color='white', font_path=font_path
-    ).generate(text)
-
+    wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
     plt.figure(figsize=(10, 5))
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis("off")
     st.pyplot(plt)
-
 
 with tabs[1]:
     st.subheader("📖 User Guide")
