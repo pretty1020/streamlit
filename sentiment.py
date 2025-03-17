@@ -10,13 +10,6 @@ import spacy
 from io import BytesIO
 from PIL import ImageFont
 
-# Ensure SpaCy is installed
-try:
-    import spacy
-except ImportError:
-    subprocess.run([sys.executable, "-m", "pip", "install", "spacy"])
-    import spacy
-
 
 
 
