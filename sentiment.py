@@ -5,6 +5,8 @@ import seaborn as sns
 from textblob import TextBlob
 from wordcloud import WordCloud
 import os
+from PIL import Image, ImageDraw, ImageFont
+ImageFont.load_default()  # This should not throw an error
 
 # Function to analyze sentiment
 def analyze_sentiment(text):
