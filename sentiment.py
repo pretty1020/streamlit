@@ -108,12 +108,18 @@ with tabs[0]:
 # Advanced Analysis Tab
 with tabs[1]:
   def generate_wordcloud(text):
-    wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
-    plt.figure(figsize=(10, 5))
-    plt.imshow(wordcloud, interpolation='bilinear')
-    plt.axis("off")
-    st.pyplot(plt)
+        """Generate a simple colorful Word Cloud."""
+        wordcloud = WordCloud(
+            width=800, height=400,
+            background_color='black',
+            colormap='cool',
+            max_words=100
+        ).generate(text)
 
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis("off")
+        st.pyplot(plt)
 
     # 🔍 Most Common Words in Sentiments
     st.subheader("🔍 Most Common Words in Positive & Negative Feedback")
