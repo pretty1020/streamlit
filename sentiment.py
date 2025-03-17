@@ -8,16 +8,6 @@ import subprocess
 import spacy
 from io import BytesIO
 
-# Ensure SpaCy model is installed
-def ensure_spacy_model():
-    try:
-        nlp = spacy.load("en_core_web_sm")
-    except OSError:
-        subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"])
-        nlp = spacy.load("en_core_web_sm")
-    return nlp
-
-nlp = ensure_spacy_model()
 
 
 # Function to analyze sentiment
