@@ -9,6 +9,7 @@ import os
 from io import BytesIO
 from PIL import ImageFont
 
+
 # Function to analyze sentiment
 def analyze_sentiment(text):
     blob = TextBlob(text)
