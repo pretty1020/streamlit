@@ -83,4 +83,5 @@ seaborn
 textblob
 wordcloud
 spacy
-pillow
+pillow==10.0.1
+freetype-py==2.3.0
