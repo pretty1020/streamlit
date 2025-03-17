@@ -107,9 +107,6 @@ with tabs[0]:
 
 # Advanced Analysis Tab
 with tabs[1]:
-    st.subheader("✨ Word Cloud")
-
-
     def generate_wordcloud(text):
         """Generate a simple colorful Word Cloud."""
         wordcloud = WordCloud(
