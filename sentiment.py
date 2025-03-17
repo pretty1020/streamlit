@@ -4,25 +4,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from textblob import TextBlob
 from wordcloud import WordCloud
-import subprocess
-import sys
 import spacy
+import os
 from io import BytesIO
 from PIL import ImageFont
-
-# Ensure necessary packages are installed
-try:
-    import PIL
-except ImportError:
-    subprocess.run([sys.executable, "-m", "pip", "install", "pillow"])
-    import PIL
-
-try:
-    import spacy
-except ImportError:
-    subprocess.run([sys.executable, "-m", "pip", "install", "spacy"])
-    import spacy
-
 
 
 # Function to analyze sentiment
@@ -33,10 +18,12 @@ def analyze_sentiment(text):
     sentiment = "Positive" if polarity > 0 else "Negative" if polarity < 0 else "Neutral"
     return polarity, subjectivity, sentiment
 
+
 # Function to process data
 def process_data(df):
     df['Polarity'], df['Subjectivity'], df['Sentiment'] = zip(*df['Comment'].apply(analyze_sentiment))
     return df
+
 
 # Dummy Data
 dummy_data = {
@@ -66,6 +53,7 @@ if uploaded_file:
         st.error("CSV must contain a 'Comment' column!")
     else:
         df = process_data(df)
+st.sidebar.markdown("[For any concerns or issues,feel free to reach out to Marian via Linkedin](https://www.linkedin.com/in/marian1020/)")
 
 # Tabs
 tabs = st.tabs(["📊 Sentiment Analysis", "📖 User Guide & Definitions"])
@@ -73,57 +61,72 @@ tabs = st.tabs(["📊 Sentiment Analysis", "📖 User Guide & Definitions"])
 with tabs[0]:
     st.subheader("📊 Sentiment Summary")
     st.dataframe(df)
-    
+
     # Download button for sentiment summary
     csv = df.to_csv(index=False).encode('utf-8')
     st.download_button(
-        label="📥 Download Sentiment Summary", 
-        data=csv, 
-        file_name="sentiment_summary.csv", 
+        label="📥 Download Sentiment Summary",
+        data=csv,
+        file_name="sentiment_summary.csv",
         mime='text/csv'
     )
-    
+
     # Sentiment Distribution
     st.subheader("📌 Sentiment Distribution")
     fig, ax = plt.subplots()
-    sns.set_style("white")  # Remove grid
+    sns.set_style("white")
     sns.countplot(x=df['Sentiment'], palette='coolwarm', ax=ax, edgecolor='gold', linewidth=2)
     ax.set_facecolor("#0e1117")
     fig.patch.set_facecolor("#0e1117")
     ax.spines['bottom'].set_color('#FFD700')
-    ax.spines['top'].set_color('#FFD700') 
+    ax.spines['top'].set_color('#FFD700')
     ax.spines['right'].set_color('#FFD700')
     ax.spines['left'].set_color('#FFD700')
     plt.xticks(color='white')
     plt.yticks(color='white')
-    plt.setp(ax.patches, linewidth=1.5, edgecolor='gold')  # Add glow effect
+    plt.setp(ax.patches, linewidth=1.5, edgecolor='gold')
     st.pyplot(fig)
-    
+
     # Interpretation of results
     st.subheader("📌 Interpretation of Results")
     positive_count = df[df['Sentiment'] == 'Positive'].shape[0]
     neutral_count = df[df['Sentiment'] == 'Neutral'].shape[0]
     negative_count = df[df['Sentiment'] == 'Negative'].shape[0]
     total = df.shape[0]
-    
+
     st.markdown(f"""
-    - **Positive Comments**: {positive_count} ({(positive_count/total)*100:.2f}%) of the total.
-    - **Neutral Comments**: {neutral_count} ({(neutral_count/total)*100:.2f}%) of the total.
-    - **Negative Comments**: {negative_count} ({(negative_count/total)*100:.2f}%) of the total.
-    
+    - **Positive Comments**: {positive_count} ({(positive_count / total) * 100:.2f}%) of the total.
+    - **Neutral Comments**: {neutral_count} ({(neutral_count / total) * 100:.2f}%) of the total.
+    - **Negative Comments**: {negative_count} ({(negative_count / total) * 100:.2f}%) of the total.
+
     Based on the data, the overall sentiment suggests that the majority of customer feedback is 
     {'positive' if positive_count > negative_count else 'negative' if negative_count > positive_count else 'neutral'}.
     This insight can be used to improve customer service strategies accordingly.
     """)
-    
-    # Word Cloud
+
+    # Word Cloud Generation
     st.subheader("☁️ Word Cloud of Comments")
-    all_text = " ".join(df['Comment'])
-    wordcloud = WordCloud().generate("Sample Text")
-    fig, ax = plt.subplots()
-    ax.imshow(wordcloud, interpolation='bilinear')
-    ax.axis("off")
-    st.pyplot(fig)
+
+
+    def generate_wordcloud(text):
+        """ Generate a Word Cloud while ensuring font compatibility on all platforms. """
+        font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"  # Linux default
+        if not os.path.exists(font_path):
+            font_path = None  # Default to WordCloud’s built-in font
+
+        wordcloud = WordCloud(width=800, height=400, background_color='white', font_path=font_path).generate(text)
+
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis("off")
+        st.pyplot(plt)
+
+
+    if not df.empty:
+        all_text = " ".join(df['Comment'].dropna())
+        generate_wordcloud(all_text)
+    else:
+        st.warning("No comments available for Word Cloud generation.")
 
 with tabs[1]:
     st.subheader("📖 User Guide")
@@ -136,7 +139,7 @@ with tabs[1]:
        - **Sentiment Distribution Chart**
        - **Word Cloud of Comments**
     """)
-    
+
     st.subheader("📌 Definitions")
     st.markdown("""
     - **Polarity**: Sentiment score ranging from -1 (negative) to +1 (positive).
@@ -146,3 +149,4 @@ with tabs[1]:
       - **Negative**: Customer feedback with a polarity score < 0.
       - **Neutral**: Feedback with a polarity of 0.
     """)
+
