@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from textblob import TextBlob
+from collections import Counter
+import re
 
 # Function to analyze sentiment
 def analyze_sentiment(text):
@@ -15,6 +17,7 @@ def analyze_sentiment(text):
 # Function to process data
 def process_data(df):
     df['Polarity'], df['Subjectivity'], df['Sentiment'] = zip(*df['Comment'].apply(analyze_sentiment))
+    df['Comment_Length'] = df['Comment'].apply(len)  # Add comment length analysis
     return df
 
 # Dummy Data
@@ -32,8 +35,8 @@ df = pd.DataFrame(dummy_data)
 df = process_data(df)
 
 # Streamlit UI
-st.set_page_config(page_title="Customer Sentiment Analysis", layout="wide")
-st.title("📊 Customer Sentiment Analysis")
+st.set_page_config(page_title="Advanced Sentiment Analysis", layout="wide")
+st.title("📊 Advanced Customer Sentiment Analysis")
 
 # Sidebar - File Upload
 st.sidebar.header("Upload Customer Feedback Data")
@@ -47,7 +50,7 @@ if uploaded_file:
         df = process_data(df)
 
 # Tabs
-tabs = st.tabs(["📊 Sentiment Analysis", "📖 User Guide & Definitions"])
+tabs = st.tabs(["📊 Advanced Analysis", "📖 User Guide & Definitions"])
 
 with tabs[0]:
     st.subheader("📊 Sentiment Summary")
@@ -62,7 +65,7 @@ with tabs[0]:
         mime='text/csv'
     )
 
-    # Sentiment Distribution
+    # 📊 Sentiment Distribution
     st.subheader("📌 Sentiment Distribution")
     fig, ax = plt.subplots()
     sns.set_style("white")
@@ -78,7 +81,7 @@ with tabs[0]:
     plt.setp(ax.patches, linewidth=1.5, edgecolor='gold')
     st.pyplot(fig)
 
-    # Interpretation of results
+    # 📌 Interpretation of results
     st.subheader("📌 Interpretation of Results")
     positive_count = df[df['Sentiment'] == 'Positive'].shape[0]
     neutral_count = df[df['Sentiment'] == 'Neutral'].shape[0]
@@ -89,22 +92,13 @@ with tabs[0]:
     - **Positive Comments**: {positive_count} ({(positive_count / total) * 100:.2f}%) of the total.
     - **Neutral Comments**: {neutral_count} ({(neutral_count / total) * 100:.2f}%) of the total.
     - **Negative Comments**: {negative_count} ({(negative_count / total) * 100:.2f}%) of the total.
-
-    Based on the data, the overall sentiment suggests that the majority of customer feedback is 
-    {'positive' if positive_count > negative_count else 'negative' if negative_count > positive_count else 'neutral'}.
-    This insight can be used to improve customer service strategies accordingly.
     """)
 
-    # 📈 Advanced Analysis: Sentiment Trends Over Time (If Date Available)
-    if 'Date' in df.columns:
-        df['Date'] = pd.to_datetime(df['Date'])
-        df.sort_values('Date', inplace=True)
-        df['Rolling Sentiment'] = df['Polarity'].rolling(window=3, min_periods=1).mean()
-
-        st.subheader("📈 Sentiment Trend Over Time")
+    # 📈 Sentiment Trends by Customer
+    if "Customer" in df.columns:
+        st.subheader("📈 Sentiment Trends by Customer")
         fig, ax = plt.subplots()
-        sns.lineplot(data=df, x='Date', y='Rolling Sentiment', marker='o', ax=ax)
-        plt.xticks(rotation=45)
+        sns.boxplot(x="Sentiment", y="Polarity", data=df, ax=ax, palette="coolwarm")
         st.pyplot(fig)
 
     # 📊 Polarity & Subjectivity Distributions
@@ -121,10 +115,19 @@ with tabs[0]:
 
     st.pyplot(fig)
 
-    # 🔍 Most Common Words in Positive & Negative Feedback
-    from collections import Counter
-    import re
+    # 📌 Sentiment by Comment Length
+    st.subheader("📊 Sentiment by Comment Length")
+    fig, ax = plt.subplots()
+    sns.boxplot(x="Sentiment", y="Comment_Length", data=df, ax=ax, palette="coolwarm")
+    st.pyplot(fig)
 
+    # 📊 Correlation Analysis
+    st.subheader("📊 Sentiment Correlation Analysis")
+    fig, ax = plt.subplots()
+    sns.heatmap(df[['Polarity', 'Subjectivity', 'Comment_Length']].corr(), annot=True, cmap='coolwarm', ax=ax)
+    st.pyplot(fig)
+
+    # 🔍 Most Common Words in Positive & Negative Feedback
     def get_common_words(sentiment, num_words=10):
         words = " ".join(df[df['Sentiment'] == sentiment]['Comment']).lower()
         words = re.findall(r'\b\w+\b', words)
@@ -147,14 +150,16 @@ with tabs[1]:
     st.subheader("📖 User Guide")
     st.markdown("""
     **How to Use this App:**
-    1. Upload a CSV file with a **'Comment'** column (optionally, a 'Date' column for trend analysis).
+    1. Upload a CSV file with a **'Comment'** column.
     2. The system will analyze customer feedback using **sentiment analysis**.
     3. The dashboard displays:
        - **Sentiment Summary Table**
        - **Sentiment Distribution Chart**
        - **Polarity & Subjectivity Distributions**
        - **Most Frequent Words in Positive & Negative Feedback**
-       - **Sentiment Trends Over Time** (if a 'Date' column is available)
+       - **Sentiment by Comment Length**
+       - **Sentiment Trends by Customer**
+       - **Correlation Analysis**
     """)
 
     st.subheader("📌 Definitions")
