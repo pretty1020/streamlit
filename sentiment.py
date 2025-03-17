@@ -125,12 +125,6 @@ with tabs[1]:
         st.pyplot(plt)
 
 
-    # Generate Word Cloud if data exists
-    if not df.empty:
-        #all_text = " ".join(df['Comment'].dropna())
-        #generate_wordcloud(all_text)
-    else:
-        st.warning("No comments available for Word Cloud generation.")
 
     # 🔍 Most Common Words in Sentiments
     st.subheader("🔍 Most Common Words in Positive & Negative Feedback")
