@@ -66,7 +66,7 @@ with tabs[0]:
     )
 
     # 📊 ✨ Glowy Sentiment Distribution ✨
-    st.subheader("🌟 Sentiment Distribution  🌟")
+    st.subheader("🌟 Sentiment Distribution (Glowy Chart) 🌟")
     fig, ax = plt.subplots(figsize=(8, 5))
     sns.set_style("darkgrid")
     sns.countplot(x=df['Sentiment'], palette='coolwarm', ax=ax, edgecolor='gold', linewidth=3)
@@ -92,28 +92,27 @@ with tabs[0]:
     - **Neutral responses** suggest room for engagement improvement.  
     """)
 
-    # 📊 ✨ Polarity & Subjectivity Distributions ✨
-    st.subheader("🌟 Polarity & Subjectivity Distributions 🌟")
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    # 📊 ✨ Sentiment Trends Over Time ✨
+    if "Date" in df.columns:
+        df['Date'] = pd.to_datetime(df['Date'])
+        df.sort_values("Date", inplace=True)
+        df['Rolling Sentiment'] = df['Polarity'].rolling(window=5, min_periods=1).mean()
 
-    sns.histplot(df['Polarity'], bins=20, kde=True, ax=axes[0], color="cyan")
-    axes[0].set_title("Polarity Distribution")
-    axes[0].set_xlabel("Polarity (-1 to 1)")
+        st.subheader("🌟 Sentiment Trends Over Time (Glowy Line Chart) 🌟")
+        fig, ax = plt.subplots(figsize=(10, 5))
+        sns.lineplot(x=df["Date"], y=df["Rolling Sentiment"], color="cyan", marker="o", ax=ax)
+        plt.xticks(rotation=45)
+        plt.grid(True, linestyle="--", linewidth=0.5, color="white")
+        st.pyplot(fig)
 
-    sns.histplot(df['Subjectivity'], bins=20, kde=True, ax=axes[1], color="magenta")
-    axes[1].set_title("Subjectivity Distribution")
-    axes[1].set_xlabel("Subjectivity (0 to 1)")
-
-    st.pyplot(fig)
-
-    st.markdown("""
-    **📌 Interpretation:**  
-    - A **high subjectivity score** means customers share opinions rather than facts.  
-    - **Polarity close to zero** suggests neutral or mixed feedback.  
-    """)
+        st.markdown("""
+        **📌 Interpretation:**  
+        - **Upward trends** suggest increasing customer satisfaction.  
+        - **Downward trends** indicate rising concerns and dissatisfaction.  
+        """)
 
     # 📊 ✨ Sentiment by Comment Length ✨
-    st.subheader("🌟 Sentiment by Comment Length 🌟")
+    st.subheader("🌟 Sentiment by Comment Length (Glowy Boxplot) 🌟")
     fig, ax = plt.subplots(figsize=(8, 5))
     sns.boxplot(x="Sentiment", y="Comment_Length", data=df, ax=ax, palette="coolwarm")
     st.pyplot(fig)
@@ -124,42 +123,41 @@ with tabs[0]:
     - **Short positive comments** show quick expressions of satisfaction.  
     """)
 
-    # 📊 ✨ Correlation Analysis ✨
-    st.subheader("🌟 Sentiment Correlation Analysis 🌟")
-    fig, ax = plt.subplots(figsize=(6, 4))
-    sns.heatmap(df[['Polarity', 'Subjectivity', 'Comment_Length']].corr(), annot=True, cmap='coolwarm', ax=ax)
-    st.pyplot(fig)
-
-    st.markdown("""
-    **📌 Interpretation:**  
-    - **Strong correlation between polarity & subjectivity** means people share opinions strongly.  
-    - **Negative correlation with comment length** suggests detailed negative reviews.  
-    """)
-
 with tabs[1]:
     st.subheader("📖 Summary & Actionable Recommendations")
 
     st.markdown("""
     ### **📊 Summary of Findings:**
     - **Overall Sentiment:**  
-      - Majority of comments are **[Positive/Negative/Neutral]**  
-      - This suggests **[customer satisfaction/dissatisfaction/mixed opinions]**  
-    - **Key Trends:**  
-      - **Frequent words in negative comments**: [Common words]  
-      - **Frequent words in positive comments**: [Common words]  
-      - **Sentiment trends over time suggest**: [stable, fluctuating, declining, improving sentiment]  
+      - **{positive_count}% positive**, indicating high customer satisfaction.  
+      - **{neutral_count}% neutral**, meaning some customers have mixed experiences.  
+      - **{negative_count}% negative**, showing areas needing improvement.  
+    - **Key Trends Identified:**  
+      - Customers frequently mention **"{top_positive_words}"** in positive reviews.  
+      - Common complaints include **"{top_negative_words}"**, requiring immediate attention.  
+      - **Sentiment has been {sentiment_trend} over time**, suggesting **{trend_conclusion}**.  
 
-    ### **🚀 Actionable Recommendations:**
-    **For Leadership Teams:**
-    - If **negative sentiment is high**, consider **service quality improvements & proactive issue resolution**.  
-    - If **neutral comments dominate**, identify factors that drive stronger satisfaction.  
+    ### **🚀 Actionable Recommendations for Customer Service Teams:**
+    **1️⃣ Improve Response Time & Interaction Quality**  
+    ✅ Reduce **first response time (FRT)** and **average handling time (AHT)**.  
+    ✅ Offer **real-time solutions & knowledge base integration**.  
 
-    **For Customer Service Managers:**
-    - **Train support teams** to improve areas mentioned in frequent negative comments.  
-    - **Monitor long complaints** for deeper dissatisfaction insights.  
+    **2️⃣ Train Agents on Soft Skills & Empathy**  
+    ✅ Conduct **role-play training** based on negative feedback themes.  
+    ✅ Reward **top-performing agents** for outstanding customer interactions.  
 
-    **For Product & Marketing Teams:**
-    - **Leverage common positive keywords** in advertising & testimonials.  
-    - Address **frequent negative concerns** to improve product-market fit.  
+    **3️⃣ Leverage Positive Feedback for Customer Engagement**  
+    ✅ Use **common positive keywords** in testimonials & marketing.  
+    ✅ Engage with happy customers to build loyalty.  
+
+    **4️⃣ Address Negative Sentiment with Process Improvements**  
+    ✅ If complaints are about **slow service**, optimize agent workflow.  
+    ✅ If **rudeness** is mentioned, reinforce professionalism training.  
+    ✅ Follow up with **dissatisfied customers** for resolution.  
+
+    ### **🔮 Next Steps**
+    ✅ Implement **Sentiment-Based Training & Quality Control**.  
+    ✅ Use **AI-driven analytics** to predict customer satisfaction trends.  
+    ✅ Track sentiment trends **over time** to measure improvement.  
     """)
 
