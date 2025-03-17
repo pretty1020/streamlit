@@ -23,12 +23,7 @@ except ImportError:
     subprocess.run([sys.executable, "-m", "pip", "install", "spacy"])
     import spacy
 
-# Ensure the SpaCy model is available
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
-    nlp = spacy.load("en_core_web_sm")
+
 
 # Function to analyze sentiment
 def analyze_sentiment(text):
