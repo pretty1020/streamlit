@@ -14,7 +14,6 @@ def get_base64(bin_file):
 
 
 
-set_background('senti1.png')
 
 # Define the Streamlit app title and description
 st.title("Sentiment Analysis tool and Word Cloud")
