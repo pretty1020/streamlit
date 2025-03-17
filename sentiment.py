@@ -127,6 +127,7 @@ def generate_wordcloud(text):
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis("off")
     st.pyplot(plt)
+
     # Generate Word Cloud if data exists
     if not df.empty:
         all_text = " ".join(df['Comment'].dropna())
