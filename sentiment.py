@@ -9,7 +9,6 @@ import os
 from io import BytesIO
 from PIL import ImageFont
 
-
 # Function to analyze sentiment
 def analyze_sentiment(text):
     blob = TextBlob(text)
@@ -53,7 +52,6 @@ if uploaded_file:
         st.error("CSV must contain a 'Comment' column!")
     else:
         df = process_data(df)
-st.sidebar.markdown("[For any concerns or issues,feel free to reach out to Marian via Linkedin](https://www.linkedin.com/in/marian1020/)")
 
 # Tabs
 tabs = st.tabs(["📊 Sentiment Analysis", "📖 User Guide & Definitions"])
@@ -109,34 +107,24 @@ with tabs[0]:
 
 
     def generate_wordcloud(text):
-    """Generate a Word Cloud while ensuring cross-platform compatibility."""
-    import os
-    from wordcloud import WordCloud
-    import matplotlib.pyplot as plt
+        """ Generate a Word Cloud while ensuring font compatibility on all platforms. """
+        font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"  # Linux default
+        if not os.path.exists(font_path):
+            font_path = None  # Default to WordCloud’s built-in font
 
-    # Check available fonts
-    font_path = None
-    possible_fonts = [
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",  # Linux default
-        "/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf",  # Alternative Linux font
-        "/System/Library/Fonts/Supplemental/Arial.ttf",  # macOS
-        "C:/Windows/Fonts/Arial.ttf"  # Windows
-    ]
-    
-    for path in possible_fonts:
-        if os.path.exists(path):
-            font_path = path
-            break
+        wordcloud = WordCloud(width=800, height=400, background_color='white', font_path=font_path).generate(text)
 
-    wordcloud = WordCloud(
-        width=800, height=400, background_color='white', font_path=font_path
-    ).generate(text)
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis("off")
+        st.pyplot(plt)
 
-    plt.figure(figsize=(10, 5))
-    plt.imshow(wordcloud, interpolation='bilinear')
-    plt.axis("off")
-    st.pyplot(plt)
 
+    if not df.empty:
+        all_text = " ".join(df['Comment'].dropna())
+        generate_wordcloud(all_text)
+    else:
+        st.warning("No comments available for Word Cloud generation.")
 
 with tabs[1]:
     st.subheader("📖 User Guide")
