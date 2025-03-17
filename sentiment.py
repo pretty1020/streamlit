@@ -9,6 +9,12 @@ import sys
 import spacy
 from io import BytesIO
 
+# Ensure pillow is installed and updated
+try:
+    import PIL
+except ImportError:
+    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "pillow"])
+    import PIL
 
 
 # Function to analyze sentiment
