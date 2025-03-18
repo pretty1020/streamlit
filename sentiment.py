@@ -133,7 +133,7 @@ with tabs[1]:
     st.subheader("📖 User Guide")
     st.markdown("""
     **How to Use this App:**
-    1. Upload a CSV file with a **'Comment'** column.
+    1. Upload a CSV file with a **'Comment'** column (this tool utilized dummy data if no uploaded data from the user yet).
     2. The system will analyze customer feedback using **sentiment analysis**.
     3. The dashboard displays:
        - **Sentiment Summary Table**
