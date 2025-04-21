@@ -158,6 +158,7 @@ with tabs[1]:
 
     2. **Enter OpenAI API Key (Optional):**
        - To enable the AI assistant, paste your API key in the sidebar.
+       - Don't have one? [Get your free OpenAI API key here](https://platform.openai.com/account/api-keys)
        - The AI can answer KPI trend questions like:
          - “How did SLA perform last week?”
          - “Which team has the highest AHT?”
