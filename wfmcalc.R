@@ -1,7 +1,7 @@
 
 library(rsconnect)
 connectCloudUser(launch.browser = TRUE)
-
+rsconnect::writeManifest()
 
 
 library(shiny)
