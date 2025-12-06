@@ -2,11 +2,6 @@
 library(rsconnect)
 rsconnect::writeManifest()
 
-rsconnect::setAccountInfo(name='marian1020',
-                          token='8F00BE4117C348843CC9FA257273DBA5',
-                          secret='HMHScd8drDmRkdsgsvt9BUPMPMDgAtbjkvBoUVun')
-
-
 
 library(shiny)
 
