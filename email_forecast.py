@@ -6,7 +6,7 @@
 # - Forecast using ETS (Holt-Winters) or ARIMA (auto grid)
 # - Train/Test evaluation + error measures (MAE, RMSE, MAPE, sMAPE, WAPE)
 # - Requirements calculator using AHT + Shrinkage + Paid Hours + Backlog + SLA buffer
-# - Gradient JA-style theme, simple explanations, and exports
+# - Light gradient theme, simple explanations, and exports
 #
 # Install:
 #   pip install streamlit pandas numpy plotly openpyxl statsmodels
@@ -29,14 +29,14 @@ from statsmodels.tsa.statespace.sarimax import SARIMAX
 warnings.filterwarnings("ignore")
 
 # ----------------------------
-# Theme
+# JustAnswer Teal-to-Sky-Blue Gradient Theme
 # ----------------------------
-DEFAULT_PRIMARY = "#00B140"   # vibrant green (approx)
-DEFAULT_ACCENT = "#16A34A"    # green accent
-DEFAULT_BG = "#111827"        # lighter navy than before
-DEFAULT_PANEL = "#020617"     # darker panel
-DEFAULT_TEXT = "#E5F0FF"      # light text
-DEFAULT_MUTED = "#9FB3C8"     # muted text
+DEFAULT_PRIMARY = "#14B8A6"   # bright teal (left side of gradient)
+DEFAULT_ACCENT = "#38BDF8"    # sky-blue (right side of gradient)
+DEFAULT_BG = "#F0FDFA"        # light teal-tinted background
+DEFAULT_PANEL = "#FFFFFF"     # white
+DEFAULT_TEXT = "#0F172A"      # dark slate (readable on light)
+DEFAULT_MUTED = "#475569"     # muted slate
 DEFAULT_WARN = "#F59E0B"      # amber
 DEFAULT_DANGER = "#EF4444"    # red
 
@@ -63,94 +63,114 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
         }}
 
         .stApp {{
-          background: radial-gradient(1200px 700px at 10% 0%, rgba(0,177,64,0.18), transparent 55%),
-                      radial-gradient(900px 500px at 90% 10%, rgba(22,163,74,0.12), transparent 50%),
-                      linear-gradient(180deg, var(--bg), #020617 85%);
+          background: linear-gradient(90deg, rgba(20,184,166,0.12) 0%, rgba(56,189,248,0.08) 100%),
+                      radial-gradient(1200px 700px at 10% 0%, rgba(20,184,166,0.1), transparent 55%),
+                      radial-gradient(900px 500px at 90% 10%, rgba(56,189,248,0.08), transparent 50%),
+                      linear-gradient(180deg, #F0FDFA 0%, #ECFEFF 50%, #E0F2FE 100%);
           color: var(--text);
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }}
 
         html, body, [class*="css"] {{
           color: var(--text) !important;
+          font-size: 14px;
         }}
 
         section[data-testid="stSidebar"] {{
-          background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(15,23,42,0.98));
-          border-right: 1px solid rgba(255,255,255,0.06);
+          background: linear-gradient(180deg, #FFFFFF 0%, #F0FDFA 100%);
+          border-right: 2px solid rgba(20,184,166,0.2);
+          box-shadow: 2px 0 10px rgba(0,0,0,0.05);
         }}
 
         .card {{
-          background: linear-gradient(180deg, rgba(17,27,46,0.90), rgba(15,23,42,0.92));
-          border: 1px solid rgba(255,255,255,0.06);
+          background: linear-gradient(135deg, #FFFFFF 0%, #F0FDFA 100%);
+          border: 1px solid rgba(20,184,166,0.25);
           border-radius: 16px;
-          padding: 16px 18px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+          padding: 20px 24px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 2px 8px rgba(20,184,166,0.15);
         }}
 
-        /* Darker cards for forecast and requirements explanations */
+        /* Gradient cards for forecast and requirements */
         .card-forecast {{
-          background: linear-gradient(180deg, #020617, #020617);
-          border-color: rgba(148,163,184,0.6);
+          background: linear-gradient(135deg, rgba(20,184,166,0.08) 0%, rgba(56,189,248,0.12) 100%);
+          border-color: rgba(20,184,166,0.35);
+          box-shadow: 0 4px 20px rgba(20,184,166,0.15), 0 2px 8px rgba(56,189,248,0.2);
         }}
         .card-req {{
-          background: linear-gradient(180deg, #020617, #020617);
-          border-color: rgba(148,163,184,0.6);
+          background: linear-gradient(135deg, rgba(20,184,166,0.08) 0%, rgba(56,189,248,0.12) 100%);
+          border-color: rgba(20,184,166,0.35);
+          box-shadow: 0 4px 20px rgba(20,184,166,0.15), 0 2px 8px rgba(56,189,248,0.2);
         }}
 
         .badge {{
           display: inline-block;
-          padding: 4px 10px;
+          padding: 6px 12px;
           border-radius: 999px;
           font-size: 12px;
-          border: 1px solid rgba(255,255,255,0.12);
-          background: rgba(15,23,42,0.9);
-          color: var(--muted);
+          font-weight: 600;
+          border: 1px solid rgba(20,184,166,0.35);
+          background: linear-gradient(135deg, rgba(20,184,166,0.12), rgba(56,189,248,0.18));
+          color: {primary};
           margin-left: 8px;
         }}
 
         .title {{
-          font-size: 34px;
+          font-size: 36px;
           font-weight: 800;
           letter-spacing: -0.02em;
-          margin-bottom: 6px;
+          margin-bottom: 8px;
+          background: linear-gradient(135deg, {primary}, {accent});
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }}
         .subtitle {{
-          font-size: 14px;
+          font-size: 15px;
           color: var(--muted);
-          margin-top: -6px;
-          margin-bottom: 10px;
+          margin-top: -8px;
+          margin-bottom: 12px;
         }}
 
         div[data-testid="metric-container"] {{
-          background: rgba(15,23,42,0.9);
-          border: 1px solid rgba(148,163,184,0.35);
-          padding: 14px 14px;
+          background: linear-gradient(135deg, #FFFFFF 0%, #F0FDFA 100%);
+          border: 1px solid rgba(20,184,166,0.25);
+          padding: 16px 18px;
           border-radius: 14px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }}
 
         .stButton>button {{
           border-radius: 12px;
-          border: 1px solid rgba(255,255,255,0.12);
-          background: linear-gradient(180deg, rgba(0,177,64,0.98), rgba(22,163,74,0.92));
+          border: none;
+          background: linear-gradient(135deg, {primary}, {accent});
           color: white;
           font-weight: 700;
-          padding: 0.55rem 0.85rem;
+          padding: 0.6rem 1rem;
+          box-shadow: 0 4px 15px rgba(20,184,166,0.35);
+          transition: all 0.3s ease;
         }}
         .stButton>button:hover {{
-          filter: brightness(1.05);
-          border-color: rgba(255,255,255,0.22);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(20,184,166,0.45);
         }}
 
         .stTextInput input, .stNumberInput input, .stSelectbox div, .stMultiSelect div {{
-          background-color: rgba(15,23,42,0.85) !important;
-          border: 1px solid rgba(148,163,184,0.45) !important;
+          background-color: #FFFFFF !important;
+          border: 1px solid rgba(20,184,166,0.3) !important;
           border-radius: 12px !important;
           color: var(--text) !important;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }}
+        .stTextInput input:focus, .stNumberInput input:focus {{
+          border-color: {primary} !important;
+          box-shadow: 0 0 0 3px rgba(20,184,166,0.15) !important;
         }}
 
         .stDataFrame, .stTable {{
           border-radius: 14px;
           overflow: hidden;
-          border: 1px solid rgba(148,163,184,0.4);
+          border: 1px solid rgba(20,184,166,0.25);
+          box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }}
         .stDataFrame [role="grid"] {{
           font-size: 13px;
@@ -160,13 +180,57 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
         a {{
           color: var(--primary) !important;
         }}
+
+        /* Enhanced tabs: JustAnswer teal-to-sky-blue gradient theme */
+        div[data-testid="stTabs"] > div[role="tablist"] {{
+          gap: 0.5rem;
+          background: linear-gradient(135deg, #F0FDFA 0%, #ECFEFF 100%);
+          padding: 0.5rem;
+          border-radius: 12px;
+          box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }}
+
+        div[data-testid="stTabs"] > div[role="tablist"] button[role="tab"] {{
+          color: {text} !important;
+          font-weight: 600;
+          background: linear-gradient(135deg, #FFFFFF 0%, #F0FDFA 100%);
+          border-radius: 999px;
+          padding: 0.4rem 1rem;
+          border: 1px solid rgba(20,184,166,0.25);
+          box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+          transition: all 0.3s ease;
+        }}
+
+        div[data-testid="stTabs"] > div[role="tablist"] button[role="tab"]:hover {{
+          background: linear-gradient(135deg, rgba(20,184,166,0.08), rgba(56,189,248,0.12));
+          border-color: rgba(20,184,166,0.4);
+          transform: translateY(-1px);
+        }}
+
+        div[data-testid="stTabs"] > div[role="tablist"] button[role="tab"][aria-selected="true"] {{
+          background: linear-gradient(135deg, {primary}, {accent});
+          border-color: {primary};
+          color: #FFFFFF !important;
+          box-shadow: 0 4px 15px rgba(20,184,166,0.4);
+          transform: translateY(-2px);
+        }}
+
+        div[data-testid="stTabs"] > div[role="tablist"] button[role="tab"]:focus-visible {{
+          outline: 2px solid {primary};
+          outline-offset: 2px;
+        }}
+
+        /* Plotly charts - light theme */
+        .js-plotly-plot {{
+          background: #FFFFFF !important;
+        }}
         </style>
         """,
         unsafe_allow_html=True,
     )
 
 
-# Apply theme once (no Settings section)
+# Apply theme
 inject_css(
     DEFAULT_PRIMARY,
     DEFAULT_ACCENT,
@@ -228,7 +292,10 @@ def make_line_chart(df: pd.DataFrame, x_col: str, y_cols: List[str], title: str)
         title=title,
         xaxis_title=x_col,
         yaxis_title="Count",
-        template="plotly_dark",
+        template="plotly_white",
+        plot_bgcolor="white",
+        paper_bgcolor="white",
+        font=dict(color="#1E293B"),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         height=420,
         margin=dict(l=30, r=30, t=70, b=40),
@@ -438,14 +505,24 @@ st.markdown(
 # ----------------------------
 # Main Tabs
 # ----------------------------
-tab1, tab2, tab3, tab4, tab5 = st.tabs(
-    ["1) Data", "2) Forecast", "3) Requirements", "4) Diagnostics", "5) User Guide"]
+tab1, tab2, tab3, tab4 = st.tabs(
+    ["1) Data", "2) Forecast", "3) Requirements", "4) User Guide"]
 )
 
 # ----------------------------
 # Tab 1: Data
 # ----------------------------
 with tab1:
+    st.markdown(
+        """
+        <div class="card">
+          <b>Data tab</b><br>
+          Load your email history and tell the tool which columns are the date and the email volume.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
     st.markdown("#### 📥 Load your data")
     left, right = st.columns([1.2, 1])
 
@@ -510,6 +587,16 @@ with tab1:
 # Tab 2: Forecast
 # ----------------------------
 with tab2:
+    st.markdown(
+        """
+        <div class="card card-forecast">
+          <b>Forecast tab</b><br>
+          Choose a model, forecast length, and test window, then generate a volume forecast for your email LOB.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
     if "agg" not in st.session_state:
         st.warning("Load data first in **1) Data**.")
         st.stop()
@@ -696,7 +783,10 @@ with tab2:
             )
         )
         fig.update_layout(
-            template="plotly_dark",
+            template="plotly_white",
+            plot_bgcolor="white",
+            paper_bgcolor="white",
+            font=dict(color="#1E293B"),
             title="Actual vs Predicted vs Forecast",
             height=460,
             margin=dict(l=30, r=30, t=70, b=40),
@@ -707,8 +797,8 @@ with tab2:
         st.plotly_chart(fig, use_container_width=True)
 
         st.caption(
-            "We hide some data (holdout) to check how well the model predicts the past. "
-            "Those errors help you judge if the forecast is reliable."
+            "We hide some history (holdout) to check how well the model predicts the past. "
+            "Those errors help you judge if the forecast is good enough."
         )
 
         # Download forecast data
@@ -729,6 +819,16 @@ with tab2:
 # Tab 3: Requirements
 # ----------------------------
 with tab3:
+    st.markdown(
+        """
+        <div class="card card-req">
+          <b>Requirements tab</b><br>
+          Turn the volume forecast into FTE by applying your AHT, shrinkage, backlog and SLA buffer.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
     if "forecast" not in st.session_state:
         st.warning("Run a forecast first in **2) Forecast**.")
         st.stop()
@@ -899,7 +999,10 @@ with tab3:
         )
     )
     fig2.update_layout(
-        template="plotly_dark",
+        template="plotly_white",
+        plot_bgcolor="white",
+        paper_bgcolor="white",
+        font=dict(color="#1E293B"),
         title="Total Required Hours (New + Backlog) with SLA Buffer",
         height=420,
         margin=dict(l=30, r=30, t=70, b=40),
@@ -916,7 +1019,10 @@ with tab3:
         )
     )
     fig3.update_layout(
-        template="plotly_dark",
+        template="plotly_white",
+        plot_bgcolor="white",
+        paper_bgcolor="white",
+        font=dict(color="#1E293B"),
         title="Required FTE per Period",
         height=420,
         margin=dict(l=30, r=30, t=70, b=40),
@@ -934,95 +1040,19 @@ with tab3:
     )
 
 # ----------------------------
-# Tab 4: Diagnostics
+# Tab 4: User Guide
 # ----------------------------
 with tab4:
-    if "forecast" not in st.session_state:
-        st.warning("Run a forecast first in **2) Forecast**.")
-        st.stop()
-
-    train = st.session_state["train"]
-    test = st.session_state["test"]
-    test_pred = st.session_state["test_pred"]
-    errs = st.session_state["errors"]
-    model_name = st.session_state["forecast_model"]
-
-    st.markdown("#### 🧪 Diagnostics")
-
-    diag_df = pd.DataFrame(
-        {
-            "Period": test.index,
-            "Actual": test.values,
-            "Pred": test_pred.values,
-            "Error": (test.values - test_pred.values),
-        }
-    )
-    diag_df["AbsError"] = np.abs(diag_df["Error"])
-    diag_df["APE%"] = np.where(
-        diag_df["Actual"] == 0,
-        np.nan,
-        100 * np.abs(diag_df["Error"] / diag_df["Actual"]),
+    st.markdown(
+        """
+        <div class="card">
+          <b>User Guide tab</b><br>
+          Plain‑language explanations of the steps and the key terms used in this tool.
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
-    c1, c2 = st.columns([1.2, 1])
-    with c1:
-        st.dataframe(diag_df, use_container_width=True, height=340)
-    with c2:
-        st.markdown(
-            f"""
-            <div class="card">
-              <b>Model</b>: {model_name}<br><br>
-              <b>Error measures</b><br>
-              • MAE: {errs['MAE']:.2f}<br>
-              • RMSE: {errs['RMSE']:.2f}<br>
-              • MAPE: {errs['MAPE%']:.2f}%<br>
-              • sMAPE: {errs['sMAPE%']:.2f}%<br>
-              • WAPE: {errs['WAPE%']:.2f}%<br><br>
-              <span style="color: var(--muted); font-size: 12px;">
-              Think of these as “how far off” the forecast was on the holdout window. 
-              WAPE is usually the most stable number to compare runs.
-              </span>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    fig = go.Figure()
-    fig.add_trace(
-        go.Bar(x=diag_df["Period"], y=diag_df["Error"], name="Residual (Actual - Pred)")
-    )
-    fig.update_layout(
-        template="plotly_dark",
-        title="Residuals on Holdout Window",
-        height=420,
-        margin=dict(l=30, r=30, t=70, b=40),
-    )
-    st.plotly_chart(fig, use_container_width=True)
-
-    fig2 = go.Figure()
-    fig2.add_trace(go.Histogram(x=diag_df["Error"], nbinsx=20, name="Error Dist"))
-    fig2.update_layout(
-        template="plotly_dark",
-        title="Error Distribution (Holdout)",
-        height=420,
-        margin=dict(l=30, r=30, t=70, b=40),
-    )
-    st.plotly_chart(fig2, use_container_width=True)
-
-    # Optional: download diagnostics
-    st.markdown("#### ⬇️ Download diagnostics")
-    diag_csv = diag_df.to_csv(index=False).encode("utf-8")
-    st.download_button(
-        "Download Diagnostics CSV",
-        data=diag_csv,
-        file_name=f"email_diagnostics_{freq.lower()}.csv",
-        mime="text/csv",
-    )
-
-# ----------------------------
-# Tab 5: User Guide
-# ----------------------------
-with tab5:
     st.markdown("#### 📖 User Guide")
 
     st.markdown("##### 1. Simple workflow")
@@ -1031,8 +1061,7 @@ with tab5:
         1. **Data tab** – Load your email volume file (or use the sample) and map the columns.  
         2. **Forecast tab** – Pick a model, forecast length, and holdout size, then click **Run Forecast**.  
         3. **Requirements tab** – Enter AHT, shrinkage, backlog and SLA buffer, then read the FTE results.  
-        4. **Diagnostics tab** – Check errors to see if the model is “good enough” for decisions.  
-        5. Use the download buttons to pull data into Excel or your planning deck.
+        4. Use the download buttons to pull data into Excel or your planning deck.
         """
     )
 
@@ -1071,3 +1100,4 @@ with tab5:
 st.caption(
     "Built for email WFM: backlog-aware, SLA-buffered, and simple enough to operate weekly or monthly."
 )
+
