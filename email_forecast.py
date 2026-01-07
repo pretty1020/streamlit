@@ -1,12 +1,11 @@
-# app.py — Email LOB Forecasting + Requirements (Streamlit)
+# app.py — Forecasting Tool with Requirement Calc (built for JA)
 # --------------------------------------------------------
 # Features:
-# - Upload weekly or monthly email volume data (CSV/XLSX)
-# - Clean + aggregate to chosen frequency (Weekly / Monthly)
-# - Forecast using ETS (Holt-Winters) or ARIMA (auto grid)
-# - Train/Test evaluation + error measures (MAE, RMSE, MAPE, sMAPE, WAPE)
+# - Support for Email, Voice, and Chat LOBs
+# - Upload weekly or monthly volume data (CSV/XLSX) or use sample data
+# - Forecast using ETS (Holt-Winters) or ARIMA
 # - Requirements calculator using AHT + Shrinkage + Paid Hours + Backlog + SLA buffer
-# - Light gradient theme, simple explanations, and exports
+# - JustAnswer teal-to-sky-blue gradient theme
 #
 # Install:
 #   pip install streamlit pandas numpy plotly openpyxl statsmodels
@@ -31,18 +30,18 @@ warnings.filterwarnings("ignore")
 # ----------------------------
 # JustAnswer Teal-to-Sky-Blue Gradient Theme
 # ----------------------------
-DEFAULT_PRIMARY = "#14B8A6"   # bright teal (left side of gradient)
-DEFAULT_ACCENT = "#38BDF8"    # sky-blue (right side of gradient)
+DEFAULT_PRIMARY = "#14B8A6"   # bright teal
+DEFAULT_ACCENT = "#38BDF8"    # sky-blue
 DEFAULT_BG = "#F0FDFA"        # light teal-tinted background
 DEFAULT_PANEL = "#FFFFFF"     # white
-DEFAULT_TEXT = "#0F172A"      # dark slate (readable on light)
+DEFAULT_TEXT = "#0F172A"      # dark slate
 DEFAULT_MUTED = "#475569"     # muted slate
 DEFAULT_WARN = "#F59E0B"      # amber
 DEFAULT_DANGER = "#EF4444"    # red
 
 st.set_page_config(
-    page_title="Email LOB Forecasting • Email Forecasting Tool for JA",
-    page_icon="📨",
+    page_title="Forecasting Tool with Requirement Calc (built for JA)",
+    page_icon="📊",
     layout="wide",
 )
 
@@ -90,7 +89,6 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
           box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 2px 8px rgba(20,184,166,0.15);
         }}
 
-        /* Gradient cards for forecast and requirements */
         .card-forecast {{
           background: linear-gradient(135deg, rgba(20,184,166,0.08) 0%, rgba(56,189,248,0.12) 100%);
           border-color: rgba(20,184,166,0.35);
@@ -181,7 +179,6 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
           color: var(--primary) !important;
         }}
 
-        /* Enhanced tabs: JustAnswer teal-to-sky-blue gradient theme */
         div[data-testid="stTabs"] > div[role="tablist"] {{
           gap: 0.5rem;
           background: linear-gradient(135deg, #F0FDFA 0%, #ECFEFF 100%);
@@ -220,9 +217,51 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
           outline-offset: 2px;
         }}
 
-        /* Plotly charts - light theme */
         .js-plotly-plot {{
           background: #FFFFFF !important;
+        }}
+
+        /* Enhanced filter cards with highlight */
+        .filter-card {{
+          background: linear-gradient(135deg, rgba(20,184,166,0.08) 0%, rgba(56,189,248,0.12) 100%);
+          border: 2px solid rgba(20,184,166,0.4);
+          border-radius: 12px;
+          padding: 18px 22px;
+          box-shadow: 0 4px 15px rgba(20,184,166,0.2), 0 2px 8px rgba(56,189,248,0.15);
+          transition: all 0.3s ease;
+          position: relative;
+        }}
+        .filter-card::before {{
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, {primary}, {accent});
+          border-radius: 12px 12px 0 0;
+        }}
+        .filter-card:hover {{
+          border-color: rgba(20,184,166,0.6);
+          box-shadow: 0 6px 20px rgba(20,184,166,0.3), 0 4px 12px rgba(56,189,248,0.2);
+          transform: translateY(-2px);
+        }}
+        .filter-label {{
+          font-size: 12px;
+          font-weight: 700;
+          color: {muted};
+          margin-bottom: 10px;
+          text-transform: uppercase;
+          letter-spacing: 0.8px;
+        }}
+        .filter-value {{
+          font-size: 20px;
+          font-weight: 800;
+          background: linear-gradient(135deg, {primary}, {accent});
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          margin-top: 4px;
         }}
         </style>
         """,
@@ -230,7 +269,6 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
     )
 
 
-# Apply theme
 inject_css(
     DEFAULT_PRIMARY,
     DEFAULT_ACCENT,
@@ -312,23 +350,44 @@ def read_file(upload) -> pd.DataFrame:
     raise ValueError("Unsupported file type. Upload CSV or Excel.")
 
 
-def sample_weekly() -> pd.DataFrame:
-    rng = pd.date_range("2025-01-05", periods=52, freq="W-SUN")
-    np.random.seed(42)
-    base = 2200 + 250 * np.sin(np.linspace(0, 2 * np.pi, len(rng)))
-    noise = np.random.normal(0, 140, size=len(rng))
-    vol = np.maximum(200, (base + noise)).round().astype(int)
-    return pd.DataFrame({"Date": rng, "Emails": vol})
-
-
-def sample_monthly() -> pd.DataFrame:
-    rng = pd.date_range("2023-01-01", periods=36, freq="MS")
-    np.random.seed(7)
-    trend = np.linspace(16000, 22000, len(rng))
-    season = 1200 * np.sin(np.linspace(0, 2 * np.pi, len(rng)))
-    noise = np.random.normal(0, 800, size=len(rng))
-    vol = np.maximum(500, (trend + season + noise)).round().astype(int)
-    return pd.DataFrame({"Date": rng, "Emails": vol})
+def sample_data(lob_type: str, freq: str) -> pd.DataFrame:
+    """Generate sample data for Email, Voice, or Chat"""
+    if freq == "Weekly":
+        rng = pd.date_range("2025-01-05", periods=52, freq="W-SUN")
+        np.random.seed(42)
+        if lob_type == "Email":
+            base = 2200 + 250 * np.sin(np.linspace(0, 2 * np.pi, len(rng)))
+            noise = np.random.normal(0, 140, size=len(rng))
+            vol = np.maximum(200, (base + noise)).round().astype(int)
+        elif lob_type == "Voice":
+            base = 1800 + 200 * np.sin(np.linspace(0, 2 * np.pi, len(rng)))
+            noise = np.random.normal(0, 120, size=len(rng))
+            vol = np.maximum(150, (base + noise)).round().astype(int)
+        else:  # Chat
+            base = 3200 + 300 * np.sin(np.linspace(0, 2 * np.pi, len(rng)))
+            noise = np.random.normal(0, 180, size=len(rng))
+            vol = np.maximum(250, (base + noise)).round().astype(int)
+    else:  # Monthly
+        rng = pd.date_range("2023-01-01", periods=36, freq="MS")
+        np.random.seed(7)
+        if lob_type == "Email":
+            trend = np.linspace(16000, 22000, len(rng))
+            season = 1200 * np.sin(np.linspace(0, 2 * np.pi, len(rng)))
+            noise = np.random.normal(0, 800, size=len(rng))
+            vol = np.maximum(500, (trend + season + noise)).round().astype(int)
+        elif lob_type == "Voice":
+            trend = np.linspace(12000, 18000, len(rng))
+            season = 900 * np.sin(np.linspace(0, 2 * np.pi, len(rng)))
+            noise = np.random.normal(0, 600, size=len(rng))
+            vol = np.maximum(400, (trend + season + noise)).round().astype(int)
+        else:  # Chat
+            trend = np.linspace(24000, 32000, len(rng))
+            season = 1800 * np.sin(np.linspace(0, 2 * np.pi, len(rng)))
+            noise = np.random.normal(0, 1200, size=len(rng))
+            vol = np.maximum(800, (trend + season + noise)).round().astype(int)
+    
+    volume_col = f"{lob_type} Volume"
+    return pd.DataFrame({"Date": rng, volume_col: vol})
 
 
 def aggregate_series(df: pd.DataFrame, date_col: str, vol_col: str, freq: str) -> pd.DataFrame:
@@ -344,18 +403,8 @@ def aggregate_series(df: pd.DataFrame, date_col: str, vol_col: str, freq: str) -
     else:
         s = x.set_index(date_col)[vol_col].resample("MS").sum()
 
-    out = s.reset_index().rename(columns={date_col: "Period", vol_col: "Emails"})
+    out = s.reset_index().rename(columns={date_col: "Period", vol_col: "Volume"})
     return out
-
-
-@dataclass
-class ForecastResult:
-    model_name: str
-    fitted_values: pd.Series
-    forecast: pd.Series
-    test_pred: Optional[pd.Series]
-    errors: Dict[str, float]
-    details: Dict[str, str]
 
 
 def fit_ets(train: pd.Series, seasonal_periods: int, seasonality: str) -> Tuple[object, pd.Series]:
@@ -373,6 +422,37 @@ def fit_ets(train: pd.Series, seasonal_periods: int, seasonality: str) -> Tuple[
         )
     fitted = model.fit(optimized=True)
     return fitted, fitted.fittedvalues
+
+
+def moving_average(train: pd.Series, window: int, horizon: int) -> Tuple[pd.Series, pd.Series]:
+    """Simple Moving Average forecast"""
+    ma_values = train.rolling(window=window).mean()
+    fitted_vals = ma_values.fillna(train.iloc[:window].mean())
+    
+    # Forecast: use last window average
+    last_avg = train.iloc[-window:].mean()
+    forecast = pd.Series([last_avg] * horizon)
+    
+    return fitted_vals, forecast
+
+
+def weighted_moving_average(train: pd.Series, window: int, horizon: int) -> Tuple[pd.Series, pd.Series]:
+    """Weighted Moving Average forecast (more recent values weighted higher)"""
+    weights = np.linspace(1, window, window)
+    weights = weights / weights.sum()
+    
+    fitted_vals = pd.Series(index=train.index, dtype=float)
+    for i in range(window - 1, len(train)):
+        fitted_vals.iloc[i] = (train.iloc[i-window+1:i+1] * weights).sum()
+    
+    # Fill initial NaN values
+    fitted_vals.iloc[:window-1] = train.iloc[:window-1]
+    
+    # Forecast: use weighted average of last window
+    last_weighted_avg = (train.iloc[-window:] * weights).sum()
+    forecast = pd.Series([last_weighted_avg] * horizon)
+    
+    return fitted_vals, forecast
 
 
 def auto_arima_grid(train: pd.Series, seasonal_periods: int, seasonal: bool) -> Tuple[object, Tuple[int, int, int], Tuple[int, int, int, int]]:
@@ -447,29 +527,43 @@ def compute_requirements(
     target_end_backlog: float,
     sla_target_pct: float,
     sla_buffer_pct: float,
+    concurrency: Optional[float] = None,
 ) -> pd.DataFrame:
-    """
-    Simple requirement logic:
-    - Turn forecast emails into hours: (Emails × AHT) ÷ 60
-    - Spread any backlog you want to clear across all periods
-    - Add an SLA buffer on top
-    - Turn required hours into FTE using paid hours and shrinkage
-    """
+    """Convert forecast volume into FTE requirements"""
     out = forecast_df.copy()
 
     shrink = max(0.0, min(0.95, shrinkage_pct / 100.0))
     productive_hours = max(0.01, paid_hours_per_period * (1.0 - shrink))
 
-    out["Forecast_Emails"] = out["Forecast_Emails"].clip(lower=0).round()
+    out["Forecast_Volume"] = out["Forecast_Volume"].clip(lower=0).round()
     out["AHT_min"] = aht_minutes
-    out["Workload_Hours_New"] = (out["Forecast_Emails"] * aht_minutes) / 60.0
+    
+    # For Chat with concurrency: FTE accounts for agents handling multiple chats simultaneously
+    # For Email/Voice: standard AHT-based calculation
+    if concurrency is not None and concurrency > 0:
+        # Chat concurrency model: 
+        # Total chat-minutes = Volume * AHT
+        # With concurrency, agent-minutes needed = (Volume * AHT) / Concurrency
+        # Agent-hours = agent-minutes / 60
+        total_chat_minutes = out["Forecast_Volume"] * aht_minutes
+        agent_minutes_needed = total_chat_minutes / concurrency
+        out["Workload_Hours_New"] = agent_minutes_needed / 60.0
+    else:
+        # Standard AHT-based calculation for Email/Voice
+        out["Workload_Hours_New"] = (out["Forecast_Volume"] * aht_minutes) / 60.0
 
     periods = len(out)
     backlog_to_clear = max(0.0, starting_backlog - target_end_backlog)
     backlog_per_period = backlog_to_clear / periods if periods > 0 else 0.0
 
-    out["Backlog_Clear_Emails"] = backlog_per_period
-    out["Workload_Hours_Backlog"] = (out["Backlog_Clear_Emails"] * aht_minutes) / 60.0
+    out["Backlog_Clear_Volume"] = backlog_per_period
+    if concurrency is not None and concurrency > 0:
+        # For chat: backlog clearance also uses concurrency
+        backlog_chat_minutes = out["Backlog_Clear_Volume"] * aht_minutes
+        backlog_agent_minutes = backlog_chat_minutes / concurrency
+        out["Workload_Hours_Backlog"] = backlog_agent_minutes / 60.0
+    else:
+        out["Workload_Hours_Backlog"] = (out["Backlog_Clear_Volume"] * aht_minutes) / 60.0
 
     out["SLA_Target_%"] = sla_target_pct
     out["SLA_Buffer_%"] = sla_buffer_pct
@@ -480,6 +574,9 @@ def compute_requirements(
     out["Shrinkage_%"] = shrinkage_pct
     out["ProductiveHours_per_Period"] = productive_hours
     out["Required_FTE"] = out["Total_Required_Hours"] / productive_hours
+    
+    if concurrency is not None:
+        out["Concurrency"] = concurrency
 
     return out
 
@@ -491,11 +588,11 @@ st.markdown(
     """
     <div class="card">
       <div class="title">
-        📨 Email LOB Forecasting & Requirements
-        <span class="badge">Tool built for JA</span>
+        📊 Forecasting Tool with Requirement Calc
+        <span class="badge">built for JA</span>
       </div>
       <div class="subtitle">
-        Upload weekly or monthly email volumes, create a forecast, then turn it into clear FTE requirements.
+        Simple forecasting and FTE planning for Email, Voice, and Chat LOBs. Start with sample data or upload your own.
       </div>
     </div>
     """,
@@ -505,111 +602,142 @@ st.markdown(
 # ----------------------------
 # Main Tabs
 # ----------------------------
-tab1, tab2, tab3, tab4 = st.tabs(
-    ["1) Data", "2) Forecast", "3) Requirements", "4) User Guide"]
+tab1, tab2, tab3 = st.tabs(
+    ["1) Forecast", "2) Requirements", "3) Guide"]
 )
 
 # ----------------------------
-# Tab 1: Data
+# Tab 1: Forecast (Simplified - Data + Forecast combined)
 # ----------------------------
 with tab1:
     st.markdown(
         """
         <div class="card">
-          <b>Data tab</b><br>
-          Load your email history and tell the tool which columns are the date and the email volume.
+          <b>Step 1: Choose your channel and load data</b><br>
+          Select Email, Voice, or Chat, then use sample data or upload your own file.
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    st.markdown("#### 📥 Load your data")
-    left, right = st.columns([1.2, 1])
-
-    with left:
-        upload = st.file_uploader("Upload CSV/XLSX", type=["csv", "xlsx", "xls"])
-        use_sample = st.toggle("Use sample data instead", value=(upload is None))
-        sample_type = st.selectbox(
-            "Sample type", ["Weekly", "Monthly"], index=0, disabled=not use_sample
-        )
-
-    with right:
+    # Enhanced LOB and Frequency Selection
+    st.markdown("#### 🎯 Select your options")
+    col1, col2 = st.columns(2)
+    
+    with col1:
         st.markdown(
             """
-            <div class="card">
-              <b>Expected columns</b><br>
-              • Date column (any standard date format)<br>
-              • Volume column (emails received per week/month OR raw daily records)<br><br>
-              <b>Example</b><br>
-              Date, Emails<br>
-              2025-01-05, 2310<br>
-              2025-01-12, 2198<br>
+            <div class="filter-card">
+              <div class="filter-label">📧 Channel</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        lob_type = st.selectbox(
+            "Channel",
+            ["Email", "Voice", "Chat"],
+            index=0,
+            help="Choose the channel you want to forecast",
+            label_visibility="collapsed"
+        )
+        st.markdown(
+            f"""
+            <div style="margin-top: -10px; margin-bottom: 10px;">
+              <span class="filter-value">{lob_type}</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    
+    with col2:
+        st.markdown(
+            """
+            <div class="filter-card">
+              <div class="filter-label">📅 Planning Frequency</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        freq = st.selectbox(
+            "Planning Frequency",
+            ["Weekly", "Monthly"],
+            index=0,
+            help="Weekly for operations, Monthly for planning",
+            label_visibility="collapsed"
+        )
+        st.markdown(
+            f"""
+            <div style="margin-top: -10px; margin-bottom: 10px;">
+              <span class="filter-value">{freq}</span>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    if use_sample:
-        raw = sample_weekly() if sample_type == "Weekly" else sample_monthly()
-        st.info("Using a built-in sample dataset. Upload your own file any time to replace it.")
-    else:
-        if upload is None:
-            st.stop()
-        raw = read_file(upload)
-
-    st.markdown("#### 🧹 Map columns")
-    c1, c2, c3 = st.columns([1, 1, 1])
-
-    with c1:
-        date_col = st.selectbox("Date column", options=list(raw.columns), index=0)
-    with c2:
-        vol_col = st.selectbox(
-            "Volume column (Emails)",
-            options=list(raw.columns),
-            index=min(1, len(raw.columns) - 1),
-        )
-    with c3:
-        freq = st.selectbox("Your planning frequency", ["Weekly", "Monthly"], index=0)
-
-    agg = aggregate_series(raw, date_col=date_col, vol_col=vol_col, freq=freq)
-
-    st.markdown("#### ✅ Cleaned time series")
-    agg_styled = agg.style.format({"Emails": "{:,.0f}"})
-    st.dataframe(agg_styled, use_container_width=True, height=260)
-
-    fig = make_line_chart(agg, "Period", ["Emails"], f"Incoming Emails ({freq})")
-    st.plotly_chart(fig, use_container_width=True)
-
-    st.session_state["agg"] = agg
-    st.session_state["freq"] = freq
-
-# ----------------------------
-# Tab 2: Forecast
-# ----------------------------
-with tab2:
-    st.markdown(
-        """
-        <div class="card card-forecast">
-          <b>Forecast tab</b><br>
-          Choose a model, forecast length, and test window, then generate a volume forecast for your email LOB.
-        </div>
-        """,
-        unsafe_allow_html=True,
+    # Data Source
+    st.markdown("#### 📥 Data Source")
+    use_sample = st.radio(
+        "Choose data source:",
+        ["Use sample data (recommended to start)", "Upload my own file"],
+        index=0,
+        horizontal=True
     )
 
-    if "agg" not in st.session_state:
-        st.warning("Load data first in **1) Data**.")
-        st.stop()
+    if use_sample.startswith("Use sample"):
+        raw = sample_data(lob_type, freq)
+        st.success(f"✅ Using sample {lob_type} data ({freq.lower()}) - {len(raw)} periods")
+    else:
+        upload = st.file_uploader(
+            f"Upload {lob_type} volume data (CSV/XLSX)",
+            type=["csv", "xlsx", "xls"],
+            help="File should have Date and Volume columns"
+        )
+        if upload is None:
+            st.info("👆 Please upload a file or switch to sample data")
+            st.stop()
+        raw = read_file(upload)
+        st.success(f"✅ File loaded: {upload.name}")
 
-    agg = st.session_state["agg"].copy()
-    freq = st.session_state["freq"]
+    # Column mapping (only if uploaded)
+    if not use_sample.startswith("Use sample"):
+        st.markdown("#### 🧹 Map columns")
+        c1, c2 = st.columns(2)
+        with c1:
+            date_col = st.selectbox("Date column", options=list(raw.columns), index=0)
+        with c2:
+            vol_col = st.selectbox(
+                "Volume column",
+                options=list(raw.columns),
+                index=min(1, len(raw.columns) - 1),
+            )
+    else:
+        date_col = "Date"
+        vol_col = raw.columns[1]  # Second column is volume
 
-    st.markdown("#### 🔮 Forecast configuration")
-    colA, colB, colC, colD = st.columns([1, 1, 1, 1])
+    # Aggregate data
+    agg = aggregate_series(raw, date_col=date_col, vol_col=vol_col, freq=freq)
 
+    st.markdown("#### ✅ Your data")
+    agg_styled = agg.style.format({"Volume": "{:,.0f}"})
+    st.dataframe(agg_styled, use_container_width=True, height=200)
+
+    fig = make_line_chart(agg, "Period", ["Volume"], f"{lob_type} Volume ({freq})")
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Forecast Configuration
+    st.markdown("#### 🔮 Forecast settings")
+    colA, colB, colC = st.columns(3)
     with colA:
         model_choice = st.selectbox(
-            "Model", ["ETS (Holt-Winters)", "ARIMA (auto grid)"], index=0
+            "Model",
+            [
+                "ETS (Holt-Winters)",
+                "ARIMA (auto grid)",
+                "Moving Average",
+                "Weighted Moving Average"
+            ],
+            index=0,
+            help="Choose forecasting model. Moving averages are simpler and faster."
         )
     with colB:
         horizon = st.number_input(
@@ -617,42 +745,42 @@ with tab2:
         )
     with colC:
         holdout = st.number_input(
-            "Holdout (periods for testing)",
+            "Holdout (for testing)",
             min_value=1,
             max_value=max(2, len(agg) // 2),
             value=min(8, max(2, len(agg) // 4)),
             step=1,
         )
-    with colD:
-        clamp_zero = st.toggle("Clamp negative forecasts to 0", value=True)
-
-    series = agg.set_index("Period")["Emails"].astype(float)
-
-    with st.expander("Seasonality settings (optional)", expanded=False):
-        if freq == "Weekly":
-            seasonal_periods = st.number_input(
-                "Season length", min_value=2, max_value=104, value=52, step=1
-            )
-        else:
-            seasonal_periods = st.number_input(
-                "Season length", min_value=2, max_value=60, value=12, step=1
-            )
-        seasonality_mode = st.selectbox(
-            "ETS seasonality type", ["add", "mul", "none"], index=0
+    
+    # Moving Average window parameter (only shown for MA models)
+    ma_window = None
+    if "Moving Average" in model_choice:
+        ma_window = st.number_input(
+            "Moving Average window",
+            min_value=2,
+            max_value=min(20, len(agg) - holdout - 1),
+            value=min(4, len(agg) - holdout - 1),
+            step=1,
+            help="Number of periods to average (higher = smoother but slower to react)"
         )
-        arima_seasonal = st.toggle("ARIMA seasonal component", value=True)
+
+    series = agg.set_index("Period")["Volume"].astype(float)
 
     if len(series) <= holdout + 4:
-        st.error("Not enough history for the chosen holdout. Reduce holdout or add more data.")
+        st.error("Not enough history. Reduce holdout or add more data.")
         st.stop()
 
     train = series.iloc[:-holdout]
     test = series.iloc[-holdout:]
 
-    run = st.button("🚀 Run Forecast", type="primary")
+    run = st.button("🚀 Generate Forecast", type="primary", use_container_width=True)
 
     if run:
         with st.spinner("Fitting model…"):
+            seasonal_periods = 52 if freq == "Weekly" else 12
+            seasonality_mode = "add"
+            arima_seasonal = True
+
             if model_choice.startswith("ETS"):
                 fit, fitted_vals = fit_ets(
                     train, seasonal_periods=int(seasonal_periods), seasonality=seasonality_mode
@@ -666,7 +794,7 @@ with tab2:
                     "Seasonal periods": str(seasonal_periods),
                 }
                 model_name = "ETS"
-            else:
+            elif model_choice.startswith("ARIMA"):
                 fit, order, seas = auto_arima_grid(
                     train,
                     seasonal_periods=int(seasonal_periods),
@@ -682,20 +810,61 @@ with tab2:
                     "AIC": f"{fit.aic:.2f}",
                 }
                 model_name = "ARIMA"
+            elif model_choice == "Moving Average":
+                if ma_window is None or ma_window < 2:
+                    st.error("Please set a valid Moving Average window (≥2)")
+                    st.stop()
+                fitted_vals, fc_ma = moving_average(train, int(ma_window), int(horizon))
+                # Test forecast: use last window average (same as future forecast)
+                last_avg = train.iloc[-int(ma_window):].mean()
+                test_fc = pd.Series([last_avg] * holdout, index=test.index)
+                fc = fc_ma
+                details = {
+                    "Model": "Simple Moving Average",
+                    "Window": str(ma_window),
+                }
+                model_name = "MA"
+            else:  # Weighted Moving Average
+                if ma_window is None or ma_window < 2:
+                    st.error("Please set a valid Moving Average window (≥2)")
+                    st.stop()
+                fitted_vals, fc_wma = weighted_moving_average(train, int(ma_window), int(horizon))
+                # Test forecast: use last window weighted average
+                weights = np.linspace(1, int(ma_window), int(ma_window))
+                weights = weights / weights.sum()
+                last_weighted_avg = (train.iloc[-int(ma_window):] * weights).sum()
+                test_fc = pd.Series([last_weighted_avg] * holdout, index=test.index)
+                fc = fc_wma
+                details = {
+                    "Model": "Weighted Moving Average",
+                    "Window": str(ma_window),
+                }
+                model_name = "WMA"
 
-            test_fc.index = test.index
-            fc.index = pd.date_range(
-                start=series.index.max(),
-                periods=int(horizon) + 1,
-                freq=("W-SUN" if freq == "Weekly" else "MS"),
-            )[1:]
+            # Set index for forecast
+            if model_choice not in ["Moving Average", "Weighted Moving Average"]:
+                test_fc.index = test.index
+                fc.index = pd.date_range(
+                    start=series.index.max(),
+                    periods=int(horizon) + 1,
+                    freq=("W-SUN" if freq == "Weekly" else "MS"),
+                )[1:]
+            else:
+                # For MA models, create index
+                test_fc.index = test.index
+                fc.index = pd.date_range(
+                    start=series.index.max(),
+                    periods=int(horizon) + 1,
+                    freq=("W-SUN" if freq == "Weekly" else "MS"),
+                )[1:]
 
-            if clamp_zero:
-                test_fc = test_fc.clip(lower=0)
-                fc = fc.clip(lower=0)
+            test_fc = test_fc.clip(lower=0)
+            fc = fc.clip(lower=0)
 
             errs = evaluate_forecast(test, test_fc)
 
+            st.session_state["lob_type"] = lob_type
+            st.session_state["freq"] = freq
             st.session_state["forecast_model"] = model_name
             st.session_state["forecast_details"] = details
             st.session_state["test_pred"] = test_fc
@@ -704,25 +873,64 @@ with tab2:
             st.session_state["train"] = train
             st.session_state["test"] = test
 
-        st.success("Forecast ready.")
+        st.success("✅ Forecast ready!")
 
     if "forecast" in st.session_state:
         errs = st.session_state["errors"]
-        details = st.session_state["forecast_details"]
+        lob_type = st.session_state.get("lob_type", "Email")
         train = st.session_state["train"]
         test = st.session_state["test"]
         test_pred = st.session_state["test_pred"]
         fc = st.session_state["forecast"]
 
-        st.markdown("#### 📏 Model accuracy (holdout)")
+        st.markdown("#### 📏 Forecast accuracy")
         m1, m2, m3, m4, m5 = st.columns(5)
         m1.metric("MAE", f"{errs['MAE']:.2f}")
         m2.metric("RMSE", f"{errs['RMSE']:.2f}")
         m3.metric("MAPE", f"{errs['MAPE%']:.2f}%")
         m4.metric("sMAPE", f"{errs['sMAPE%']:.2f}%")
         m5.metric("WAPE", f"{errs['WAPE%']:.2f}%")
+        
+        # Simple explanation of forecast accuracy
+        wape_val = errs['WAPE%']
+        if wape_val < 10:
+            accuracy_level = "Excellent"
+            accuracy_color = "#10B981"
+            recommendation = "This model is very accurate. You can confidently use it for planning."
+        elif wape_val < 15:
+            accuracy_level = "Good"
+            accuracy_color = "#14B8A6"
+            recommendation = "This model is accurate enough for most planning decisions."
+        elif wape_val < 25:
+            accuracy_level = "Acceptable"
+            accuracy_color = "#F59E0B"
+            recommendation = "This model is reasonable but consider trying other models or checking your data."
+        else:
+            accuracy_level = "Needs Improvement"
+            accuracy_color = "#EF4444"
+            recommendation = "Try a different model or check if your data has patterns the model can learn from."
+        
+        st.markdown(
+            f"""
+            <div class="card card-forecast">
+              <b>What do these numbers mean?</b><br>
+              • <b>WAPE</b> (Weighted Absolute Percentage Error): <b style="color: {accuracy_color};">{wape_val:.2f}%</b> - <b>{accuracy_level}</b><br>
+              • This tells you how far off the forecast is on average. Lower is better.<br>
+              • <b>MAE</b> and <b>RMSE</b> show absolute errors (in volume units).<br>
+              • <b>MAPE</b> and <b>sMAPE</b> show percentage errors (can be unstable with low volumes).<br><br>
+              <b>How to pick the best method:</b><br>
+              • Compare WAPE across different models - lower is better<br>
+              • <b>WAPE under 15%</b> is usually good for operations<br>
+              • If WAPE is high, try a different model or check your data quality<br>
+              • <b>Moving Averages</b> are simple but may miss trends<br>
+              • <b>ETS</b> is best for seasonal patterns<br>
+              • <b>ARIMA</b> is most flexible but can be slower<br><br>
+              <b>Recommendation:</b> {recommendation}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-        # High-level forecast summary & recommendation
         next_period = float(fc.iloc[0])
         avg_future = float(fc.mean())
         peak_future = float(fc.max())
@@ -735,19 +943,17 @@ with tab2:
         st.markdown(
             f"""
             <div class="card card-forecast">
-              <b>In simple terms</b><br>
-              • The <b>next</b> period forecast is about <b>{next_period:,.0f} emails</b>.<br>
-              • On average over the forecast window, you expect about <b>{avg_future:,.0f} emails per period</b>.<br>
-              • The highest point in the forecast is about <b>{peak_future:,.0f} emails</b> around <b>{peak_label}</b>.<br><br>
-              <b>How to use this</b><br>
-              • Use the <b>peak</b> volume to size staffing for the busiest weeks. <br>
-              • Use the <b>average</b> volume to talk about longer‑term trends and hiring.
+              <b>Forecast summary</b><br>
+              • <b>Next period:</b> {next_period:,.0f} {lob_type.lower()}<br>
+              • <b>Average:</b> {avg_future:,.0f} per period<br>
+              • <b>Peak:</b> {peak_future:,.0f} around {peak_label}<br><br>
+              <b>Tip:</b> Use peak volume for busy-week staffing, average for long-term planning.
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-        st.markdown("#### 📈 Forecast view")
+        st.markdown("#### 📈 Forecast chart")
         hist_df = (
             pd.concat([train.rename("Actual"), test.rename("Actual")])
             .reset_index()
@@ -787,7 +993,7 @@ with tab2:
             plot_bgcolor="white",
             paper_bgcolor="white",
             font=dict(color="#1E293B"),
-            title="Actual vs Predicted vs Forecast",
+            title=f"{lob_type} Forecast",
             height=460,
             margin=dict(l=30, r=30, t=70, b=40),
             legend=dict(
@@ -796,119 +1002,131 @@ with tab2:
         )
         st.plotly_chart(fig, use_container_width=True)
 
-        st.caption(
-            "We hide some history (holdout) to check how well the model predicts the past. "
-            "Those errors help you judge if the forecast is good enough."
-        )
-
-        # Download forecast data
-        st.markdown("#### ⬇️ Download forecast data")
+        st.markdown("#### ⬇️ Download forecast")
         forecast_export = plot_df.sort_values("Period")
         forecast_csv = forecast_export.to_csv(index=False).encode("utf-8")
         st.download_button(
             "Download Forecast CSV",
             data=forecast_csv,
-            file_name=f"email_forecast_{freq.lower()}.csv",
+            file_name=f"{lob_type.lower()}_forecast_{freq.lower()}.csv",
             mime="text/csv",
         )
 
-        with st.expander("Model details"):
-            st.json(details)
-
 # ----------------------------
-# Tab 3: Requirements
+# Tab 2: Requirements
 # ----------------------------
-with tab3:
+with tab2:
     st.markdown(
         """
         <div class="card card-req">
-          <b>Requirements tab</b><br>
-          Turn the volume forecast into FTE by applying your AHT, shrinkage, backlog and SLA buffer.
+          <b>Step 2: Turn forecast into FTE requirements</b><br>
+          Enter your AHT, shrinkage, and SLA settings to calculate staffing needs.
         </div>
         """,
         unsafe_allow_html=True,
     )
 
     if "forecast" not in st.session_state:
-        st.warning("Run a forecast first in **2) Forecast**.")
+        st.warning("⚠️ Generate a forecast first in the **Forecast** tab.")
         st.stop()
 
     fc = st.session_state["forecast"].copy()
     freq = st.session_state["freq"]
+    lob_type = st.session_state.get("lob_type", "Email")
 
-    st.markdown("#### 🧮 Requirements calculator (AHT + SLA + Shrinkage)")
+    st.markdown("#### 🧮 Requirements calculator")
 
-    left, right = st.columns([1.05, 1])
+    # Default AHT by LOB
+    default_aht = {"Email": 12.0, "Voice": 8.0, "Chat": 6.0}.get(lob_type, 12.0)
 
-    with left:
+    col1, col2 = st.columns(2)
+    with col1:
         st.markdown(
-            """
+            f"""
             <div class="card card-req">
               <b>What this does</b><br>
-              • Turns your <b>forecasted emails</b> into hours using AHT (minutes per email).<br>
-              • Lets you spread any <b>backlog</b> you want to clear across the forecast window.<br>
-              • Adds an extra <b>SLA buffer %</b> on top, so you are not always on the edge.<br>
-              • Converts total hours into <b>FTE</b> using paid hours and shrinkage.<br><br>
-              This gives you a simple, readable FTE plan per week or month.
+              {"• For Chat: Uses concurrency (chats per agent) to calculate FTE<br>" if lob_type == "Chat" else "• Converts forecast volume → hours using AHT<br>"}
+              {"• For Email/Voice: Converts forecast volume → hours using AHT<br>" if lob_type != "Chat" else ""}
+              • Adds backlog clearance if needed<br>
+              • Applies SLA buffer for safety<br>
+              • Converts to FTE using paid hours & shrinkage<br>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    with right:
-        c1, c2, c3 = st.columns(3)
-        with c1:
+    with col2:
+        # Show concurrency for Chat, AHT for Email/Voice
+        concurrency = None
+        if lob_type == "Chat":
+            concurrency = st.number_input(
+                "Concurrency (chats per agent)",
+                min_value=1.0,
+                value=3.0,
+                step=0.5,
+                help="Average number of simultaneous chats one agent can handle"
+            )
             aht_min = st.number_input(
-                "AHT (minutes per email)", min_value=0.1, value=12.0, step=0.5
+                "AHT (minutes per chat)",
+                min_value=0.1,
+                value=default_aht,
+                step=0.5,
+                help="Average handle time in minutes (for reference)"
             )
-        with c2:
-            shrink_pct = st.number_input(
-                "Shrinkage (%)", min_value=0.0, max_value=95.0, value=30.0, step=1.0
+        else:
+            aht_min = st.number_input(
+                f"AHT (minutes per {lob_type.lower()})",
+                min_value=0.1,
+                value=default_aht,
+                step=0.5,
+                help="Average handle time in minutes"
             )
-        with c3:
-            sla_target = st.number_input(
-                "SLA Target (%)", min_value=1.0, max_value=100.0, value=90.0, step=1.0
-            )
-
-        d1, d2, d3 = st.columns(3)
-        with d1:
-            if freq == "Weekly":
-                paid_hours = st.number_input(
-                    "Paid hours per agent per week",
-                    min_value=1.0,
-                    value=40.0,
-                    step=1.0,
-                )
-            else:
-                paid_hours = st.number_input(
-                    "Paid hours per agent per month",
-                    min_value=1.0,
-                    value=160.0,
-                    step=5.0,
-                )
-        with d2:
-            sla_buffer = st.number_input(
-                "SLA buffer (%)",
-                min_value=0.0,
-                max_value=50.0,
-                value=5.0,
+        
+        shrink_pct = st.number_input(
+            "Shrinkage (%)",
+            min_value=0.0,
+            max_value=95.0,
+            value=30.0,
+            step=1.0,
+            help="Time agents are paid but not handling contacts"
+        )
+        sla_buffer = st.number_input(
+            "SLA buffer (%)",
+            min_value=0.0,
+            max_value=50.0,
+            value=5.0,
+            step=1.0,
+            help="Extra capacity to protect SLA"
+        )
+        if freq == "Weekly":
+            paid_hours = st.number_input(
+                "Paid hours per agent per week",
+                min_value=1.0,
+                value=40.0,
                 step=1.0,
-                help="Extra capacity to cover spikes, reopens, and normal variation.",
             )
-        with d3:
-            backlog_start = st.number_input(
-                "Starting backlog (emails)", min_value=0.0, value=0.0, step=50.0
+        else:
+            paid_hours = st.number_input(
+                "Paid hours per agent per month",
+                min_value=1.0,
+                value=160.0,
+                step=5.0,
             )
+        backlog_start = st.number_input(
+            "Starting backlog",
+            min_value=0.0,
+            value=0.0,
+            step=50.0,
+            help="Current backlog to clear"
+        )
+        backlog_end = st.number_input(
+            "Target end backlog",
+            min_value=0.0,
+            value=0.0,
+            step=50.0,
+        )
 
-        e1, e2 = st.columns(2)
-        with e1:
-            backlog_end = st.number_input(
-                "Target end backlog (emails)", min_value=0.0, value=0.0, step=50.0
-            )
-        with e2:
-            round_up = st.toggle("Round FTE up (ceiling)", value=True)
-
-    forecast_df = pd.DataFrame({"Period": fc.index, "Forecast_Emails": fc.values})
+    forecast_df = pd.DataFrame({"Period": fc.index, "Forecast_Volume": fc.values})
     req = compute_requirements(
         forecast_df=forecast_df,
         aht_minutes=aht_min,
@@ -916,109 +1134,72 @@ with tab3:
         paid_hours_per_period=paid_hours,
         starting_backlog=backlog_start,
         target_end_backlog=backlog_end,
-        sla_target_pct=sla_target,
+        sla_target_pct=90.0,
         sla_buffer_pct=sla_buffer,
+        concurrency=concurrency,
     )
 
-    if round_up:
-        req["Required_FTE_Rounded"] = np.ceil(req["Required_FTE"])
-    else:
-        req["Required_FTE_Rounded"] = req["Required_FTE"]
-
-    total_emails = float(req["Forecast_Emails"].sum())
+    total_volume = float(req["Forecast_Volume"].sum())
     total_hours = float(req["Total_Required_Hours"].sum())
     avg_fte = float(req["Required_FTE"].mean())
     peak_fte = float(req["Required_FTE"].max())
 
+    st.markdown("#### 📊 Summary")
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Total Forecast Emails", f"{total_emails:,.0f}")
-    m2.metric("Total Required Hours", f"{total_hours:,.1f}")
-    m3.metric("Average FTE", f"{avg_fte:,.2f}")
+    m1.metric("Total Forecast", f"{total_volume:,.0f}")
+    m2.metric("Total Hours", f"{total_hours:,.1f}")
+    m3.metric("Avg FTE", f"{avg_fte:,.2f}")
     m4.metric("Peak FTE", f"{peak_fte:,.2f}")
 
-    # Requirement explanation & recommendation
     peak_idx = req["Required_FTE"].idxmax()
     peak_row = req.loc[peak_idx]
     peak_date = peak_row["Period"]
-    peak_req = float(peak_row["Required_FTE"])
-    peak_req_round = float(peak_row["Required_FTE_Rounded"])
 
     st.markdown(
         f"""
         <div class="card card-req">
-          <b>What this means for you</b><br>
-          • On average across the forecast, you need about <b>{avg_fte:,.2f} FTE</b> to keep up with email volume.<br>
-          • The busiest period needs about <b>{peak_req:,.2f} FTE</b>, which we round to <b>{peak_req_round:,.0f} FTE</b> for scheduling.<br>
-          • That peak happens around <b>{pd.to_datetime(peak_date).date()}</b>.<br><br>
-          <b>Simple guidance</b><br>
-          • Plan staffing at least to the <b>peak FTE</b> in your known busy weeks. <br>
-          • Use the <b>average FTE</b> when you talk about long‑term hiring and capacity.
+          <b>Key takeaway</b><br>
+          • Average FTE needed: <b>{avg_fte:,.2f}</b><br>
+          • Peak FTE needed: <b>{peak_fte:,.2f}</b><br>
+          • Peak occurs: <b>{pd.to_datetime(peak_date).date()}</b><br><br>
+          <b>Action:</b> Plan staffing to at least the peak FTE for busy periods.
         </div>
         """,
         unsafe_allow_html=True,
     )
 
     st.markdown("#### 📋 Requirements by period")
-
     show_cols = [
         "Period",
-        "Forecast_Emails",
-        "Workload_Hours_New",
-        "Workload_Hours_Backlog",
+        "Forecast_Volume",
         "Total_Required_Hours",
         "Required_FTE",
-        "Required_FTE_Rounded",
     ]
     out_df = req[show_cols].copy()
     out_df["Period"] = pd.to_datetime(out_df["Period"])
 
     req_styled = out_df.style.format(
         {
-            "Forecast_Emails": "{:,.0f}",
-            "Workload_Hours_New": "{:,.1f}",
-            "Workload_Hours_Backlog": "{:,.1f}",
+            "Forecast_Volume": "{:,.0f}",
             "Total_Required_Hours": "{:,.1f}",
             "Required_FTE": "{:,.2f}",
-            "Required_FTE_Rounded": "{:,.0f}",
         }
     )
-    st.dataframe(req_styled, use_container_width=True, height=360)
+    st.dataframe(req_styled, use_container_width=True, height=300)
 
     chart_df = out_df.copy()
     chart_df["Period"] = chart_df["Period"].dt.strftime("%Y-%m-%d")
 
-    fig1 = make_line_chart(chart_df, "Period", ["Forecast_Emails"], "Forecast Emails (by period)")
-    st.plotly_chart(fig1, use_container_width=True)
-
-    fig2 = go.Figure()
-    fig2.add_trace(
-        go.Bar(
-            x=chart_df["Period"],
-            y=out_df["Total_Required_Hours"],
-            name="Total Required Hours",
-        )
-    )
-    fig2.update_layout(
-        template="plotly_white",
-        plot_bgcolor="white",
-        paper_bgcolor="white",
-        font=dict(color="#1E293B"),
-        title="Total Required Hours (New + Backlog) with SLA Buffer",
-        height=420,
-        margin=dict(l=30, r=30, t=70, b=40),
-    )
-    st.plotly_chart(fig2, use_container_width=True)
-
-    fig3 = go.Figure()
-    fig3.add_trace(
+    fig = go.Figure()
+    fig.add_trace(
         go.Scatter(
             x=chart_df["Period"],
-            y=out_df["Required_FTE_Rounded"],
+            y=out_df["Required_FTE"],
             mode="lines+markers",
-            name="Required FTE (Rounded)",
+            name="Required FTE",
         )
     )
-    fig3.update_layout(
+    fig.update_layout(
         template="plotly_white",
         plot_bgcolor="white",
         paper_bgcolor="white",
@@ -1027,77 +1208,96 @@ with tab3:
         height=420,
         margin=dict(l=30, r=30, t=70, b=40),
     )
-    st.plotly_chart(fig3, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
-    # Export requirements
     st.markdown("#### ⬇️ Download requirements")
     csv_bytes = out_df.to_csv(index=False).encode("utf-8")
     st.download_button(
         "Download Requirements CSV",
         data=csv_bytes,
-        file_name=f"email_requirements_{freq.lower()}.csv",
+        file_name=f"{lob_type.lower()}_requirements_{freq.lower()}.csv",
         mime="text/csv",
     )
 
 # ----------------------------
-# Tab 4: User Guide
+# Tab 3: Guide
 # ----------------------------
-with tab4:
+with tab3:
     st.markdown(
         """
         <div class="card">
-          <b>User Guide tab</b><br>
-          Plain‑language explanations of the steps and the key terms used in this tool.
+          <b>Quick guide</b><br>
+          Simple explanations to help you use this tool effectively.
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    st.markdown("#### 📖 User Guide")
+    st.markdown("#### 📖 How to use")
 
-    st.markdown("##### 1. Simple workflow")
+    st.markdown("##### 1. Forecast tab")
     st.markdown(
         """
-        1. **Data tab** – Load your email volume file (or use the sample) and map the columns.  
-        2. **Forecast tab** – Pick a model, forecast length, and holdout size, then click **Run Forecast**.  
-        3. **Requirements tab** – Enter AHT, shrinkage, backlog and SLA buffer, then read the FTE results.  
-        4. Use the download buttons to pull data into Excel or your planning deck.
+        1. **Choose LOB**: Select Email, Voice, or Chat<br>
+        2. **Choose frequency**: Weekly for operations, Monthly for planning<br>
+        3. **Load data**: Use sample data (recommended) or upload your file<br>
+        4. **Set forecast**: Pick model, forecast length, and holdout<br>
+        5. **Generate**: Click the button to create your forecast<br>
+        6. **Review**: Check accuracy metrics and download if needed
         """
     )
 
-    st.markdown("##### 2. Key terms (plain language)")
+    st.markdown("##### 2. Requirements tab")
     st.markdown(
         """
-        - **AHT (Average Handle Time)**: Average time to fully work one email, in minutes.  
-        - **Shrinkage (%)**: Time people are paid but not working emails (training, meetings, PTO, coaching, etc.).  
-        - **Paid hours per period**: Contracted hours per person per week or month (for example, 40 hours/week).  
-        - **Backlog**: Emails waiting in the queue that are not yet answered.  
-        - **SLA Target (%)**: Your service goal (for example, 90% answered within 24 hours).  
-        - **SLA buffer (%)**: Extra headroom on top of the minimum needed to hit the SLA.  
-        - **FTE (Full-Time Equivalent)**: One full‑time person; two half‑time people are 1.0 FTE.  
-        - **Forecast horizon**: How many future weeks or months you want a forecast for.  
+        1. **Enter AHT**: Average handle time in minutes (defaults provided by LOB)<br>
+        2. **Set shrinkage**: % of time agents are paid but not handling contacts<br>
+        3. **Add SLA buffer**: Extra capacity % to protect service levels<br>
+        4. **Set paid hours**: Hours per agent per week/month<br>
+        5. **Backlog (optional)**: Starting and target backlog if applicable<br>
+        6. **Review FTE**: See average and peak FTE needed, then download
         """
     )
 
-    st.markdown("##### 3. Forecast accuracy metrics")
+    st.markdown("##### 3. Forecasting models")
     st.markdown(
         """
-        - **MAE (Mean Absolute Error)**: Average absolute error in email counts (smaller is better).  
-        - **RMSE (Root Mean Squared Error)**: Like MAE but punishes big misses more.  
-        - **MAPE (%)**: Average percentage error, but can be noisy when volume is very low.  
-        - **sMAPE (%)**: A more balanced version of MAPE for over‑ vs under‑forecasting.  
-        - **WAPE (%)**: Very stable percentage error that works well for operations; good main KPI.  
+        - **ETS (Holt-Winters)**: Best for seasonal patterns, handles trends and seasonality<br>
+        - **ARIMA (auto grid)**: Advanced model that finds best parameters automatically<br>
+        - **Moving Average**: Simple and fast, averages last N periods (good for stable data)<br>
+        - **Weighted Moving Average**: Like MA but gives more weight to recent periods<br><br>
+        <b>Which to choose?</b><br>
+        • **Moving Averages**: Fastest, simplest, good for stable patterns<br>
+        • **ETS**: Best for seasonal data (weekly/monthly patterns)<br>
+        • **ARIMA**: Most flexible, best accuracy but slower
         """
     )
 
+    st.markdown("##### 4. Key terms")
     st.markdown(
         """
-        **Practical tip:** Focus on whether the forecast gets the **shape** right (peaks and dips)
-        and a reasonable **WAPE**, not on trying to make the error numbers perfect.
+        - **AHT (Average Handle Time)**: Time to fully handle one contact, in minutes<br>
+        - **Shrinkage (%)**: Time agents are paid but unavailable (training, meetings, PTO, etc.)<br>
+        - **SLA buffer (%)**: Extra capacity on top of minimum to protect service levels<br>
+        - **FTE (Full-Time Equivalent)**: One full-time person; 2 half-time = 1.0 FTE<br>
+        - **Holdout**: Data hidden from model to test accuracy<br>
+        - **WAPE (%)**: Weighted absolute percentage error - main accuracy metric<br>
+        - **Moving Average Window**: Number of periods to average (higher = smoother)
+        """
+    )
+
+    st.markdown("##### 5. Tips")
+    st.markdown(
+        """
+        - **Start with sample data** to see how it works<br>
+        - **Use peak FTE** for busy-week staffing decisions<br>
+        - **Use average FTE** for long-term hiring and capacity planning<br>
+        - **WAPE under 15%** is usually good for operations<br>
+        - **Weekly data** works best with 52+ weeks of history<br>
+        - **Monthly data** works best with 24+ months of history
         """
     )
 
 st.caption(
-    "Built for email WFM: backlog-aware, SLA-buffered, and simple enough to operate weekly or monthly."
+    "Forecasting Tool with Requirement Calc (built for JA) - Simple, fast, reliable."
 )
-
