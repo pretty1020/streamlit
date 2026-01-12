@@ -77,44 +77,30 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
         }}
 
         .stApp {{
-          background: linear-gradient(135deg, rgba(20,184,166,0.08) 0%, rgba(56,189,248,0.12) 50%, rgba(20,184,166,0.08) 100%);
+          background: linear-gradient(90deg, #E0F7FA 0%, #B2EBF2 25%, #80DEEA 50%, #4DD0E1 75%, #26C6DA 100%);
           background-attachment: fixed;
           color: var(--text);
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif;
           line-height: 1.6;
           min-height: 100vh;
         }}
-
-        /* JustAnswer gradient overlay */
+        
+        /* Gradient overlay for depth */
         .stApp::before {{
           content: '';
           position: fixed;
           top: 0;
           left: 0;
           right: 0;
-          height: 300px;
-          background: linear-gradient(135deg, 
-                      rgba(20,184,166,0.12) 0%, 
-                      rgba(56,189,248,0.15) 50%,
-                      rgba(20,184,166,0.12) 100%);
-          z-index: -1;
+          bottom: 0;
+          background: linear-gradient(90deg, rgba(20,184,166,0.03) 0%, rgba(56,189,248,0.05) 100%);
           pointer-events: none;
-          opacity: 0.6;
+          z-index: 0;
         }}
-
-        /* Smooth scroll behavior */
-        html {{
-          scroll-behavior: smooth;
-        }}
-
-        /* Loading animations */
-        @keyframes fadeIn {{
-          from {{ opacity: 0; transform: translateY(10px); }}
-          to {{ opacity: 1; transform: translateY(0); }}
-        }}
-
-        .card, .filter-card, div[data-testid="metric-container"] {{
-          animation: fadeIn 0.5s ease-out;
+        
+        .main .block-container {{
+          position: relative;
+          z-index: 1;
         }}
 
         /* Modern web app container */
@@ -122,12 +108,14 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
           background: transparent;
         }}
 
-        /* Section dividers */
+        /* Section dividers with gradient */
         .section-divider {{
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(20,184,166,0.2), transparent);
+          height: 2px;
+          background: linear-gradient(90deg, transparent 0%, {primary} 20%, #26C6DA 50%, {accent} 80%, transparent 100%);
           margin: 2.5rem 0;
           border: none;
+          border-radius: 2px;
+          opacity: 0.6;
         }}
 
         html, body, [class*="css"] {{
@@ -138,38 +126,9 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
 
         /* Main container improvements */
         .main .block-container {{
-          padding-top: 1.5rem;
-          padding-bottom: 3rem;
+          padding-top: 2.5rem;
+          padding-bottom: 2.5rem;
           max-width: 1400px;
-        }}
-
-        /* Top navigation bar style */
-        header[data-testid="stHeader"] {{
-          background: linear-gradient(135deg, rgba(20,184,166,0.12), rgba(56,189,248,0.15));
-          border-bottom: 2px solid rgba(20,184,166,0.2);
-          box-shadow: 0 2px 12px rgba(20,184,166,0.1);
-          backdrop-filter: blur(10px);
-        }}
-
-        /* Hide default Streamlit menu for cleaner look */
-        #MainMenu {{
-          visibility: hidden;
-        }}
-
-        footer {{
-          visibility: hidden;
-        }}
-
-        /* Enhanced section headers */
-        h3::before {{
-          content: '';
-          display: inline-block;
-          width: 4px;
-          height: 24px;
-          background: linear-gradient(135deg, {primary}, {accent});
-          border-radius: 2px;
-          margin-right: 12px;
-          vertical-align: middle;
         }}
 
         /* Cleaner spacing */
@@ -191,8 +150,8 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
 
         .stMarkdown li {{
           margin-bottom: 0.375rem;
-        }}
-
+        
+            
         /* Headers */
         h1, h2, h3, h4, h5, h6 {{
           font-weight: 700;
@@ -217,9 +176,8 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
         }}
 
         section[data-testid="stSidebar"] {{
-          background: linear-gradient(180deg, #FFFFFF 0%, rgba(240,253,250,0.5) 100%);
-          border-right: 2px solid rgba(20,184,166,0.15);
-          box-shadow: 2px 0 12px rgba(20,184,166,0.05);
+          background: #FFFFFF;
+          border-right: 1px solid rgba(20,184,166,0.12);
         }}
 
         /* Success/Info/Warning/Error messages */
@@ -257,42 +215,53 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
         }}
 
         .card {{
-          background: #FFFFFF;
-          border: 1px solid rgba(20,184,166,0.2);
+          background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.98) 100%);
+          border: 2px solid rgba(20,184,166,0.25);
           border-radius: 20px;
-          padding: 36px 40px;
-          box-shadow: 0 2px 8px rgba(20,184,166,0.08), 0 8px 24px rgba(20,184,166,0.06);
+          padding: 32px 36px;
+          box-shadow: 0 4px 12px rgba(20,184,166,0.1), 0 8px 24px rgba(56,189,248,0.08);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
           overflow: hidden;
         }}
-
+        
         .card::before {{
           content: '';
           position: absolute;
           top: 0;
           left: 0;
           right: 0;
-          height: 3px;
-          background: linear-gradient(90deg, {primary}, {accent});
+          height: 5px;
+          background: linear-gradient(90deg, {primary} 0%, {accent} 100%);
+          opacity: 0.8;
         }}
 
         .card:hover {{
-          border-color: rgba(20,184,166,0.35);
-          box-shadow: 0 4px 12px rgba(20,184,166,0.12), 0 12px 32px rgba(20,184,166,0.1);
+          border-color: rgba(20,184,166,0.4);
+          box-shadow: 0 6px 16px rgba(20,184,166,0.15), 0 12px 32px rgba(56,189,248,0.12);
           transform: translateY(-2px);
         }}
 
         .card-forecast {{
-          background: linear-gradient(135deg, rgba(20,184,166,0.06) 0%, rgba(56,189,248,0.1) 100%);
-          border-color: rgba(20,184,166,0.25);
-          box-shadow: 0 2px 4px rgba(0,0,0,0.04), 0 8px 16px rgba(20,184,166,0.08);
+          background: linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(224,247,250,0.4) 100%);
+          border-color: rgba(20,184,166,0.3);
+          box-shadow: 0 4px 12px rgba(20,184,166,0.12), 0 8px 24px rgba(56,189,248,0.1);
+        }}
+        
+        .card-forecast::before {{
+          background: linear-gradient(90deg, {primary} 0%, {accent} 100%);
+          opacity: 1;
         }}
 
         .card-req {{
-          background: linear-gradient(135deg, rgba(20,184,166,0.06) 0%, rgba(56,189,248,0.1) 100%);
-          border-color: rgba(20,184,166,0.25);
-          box-shadow: 0 2px 4px rgba(0,0,0,0.04), 0 8px 16px rgba(20,184,166,0.08);
+          background: linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(178,235,242,0.4) 100%);
+          border-color: rgba(20,184,166,0.3);
+          box-shadow: 0 4px 12px rgba(20,184,166,0.12), 0 8px 24px rgba(56,189,248,0.1);
+        }}
+        
+        .card-req::before {{
+          background: linear-gradient(90deg, {primary} 0%, {accent} 100%);
+          opacity: 1;
         }}
 
         /* Guide section styling */
@@ -350,10 +319,11 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
           font-weight: 800;
           letter-spacing: -0.02em;
           margin-bottom: 8px;
-          background: linear-gradient(135deg, {primary}, {accent});
+          background: linear-gradient(90deg, {primary} 0%, #26C6DA 50%, {accent} 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
+          text-shadow: 0 2px 4px rgba(20,184,166,0.1);
         }}
         .subtitle {{
           font-size: 15px;
@@ -363,29 +333,30 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
         }}
 
         div[data-testid="metric-container"] {{
-          background: linear-gradient(135deg, #FFFFFF 0%, rgba(240,253,250,0.5) 100%);
-          border: 1.5px solid rgba(20,184,166,0.2);
-          padding: 28px 32px;
+          background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(224,247,250,0.3) 100%);
+          border: 2px solid rgba(20,184,166,0.25);
+          padding: 24px 28px;
           border-radius: 16px;
-          box-shadow: 0 2px 6px rgba(20,184,166,0.08);
+          box-shadow: 0 2px 8px rgba(20,184,166,0.1), 0 4px 16px rgba(56,189,248,0.08);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
           overflow: hidden;
         }}
-
+        
         div[data-testid="metric-container"]::before {{
           content: '';
           position: absolute;
           top: 0;
           left: 0;
           right: 0;
-          height: 3px;
-          background: linear-gradient(90deg, {primary}, {accent});
+          height: 4px;
+          background: linear-gradient(90deg, {primary} 0%, {accent} 100%);
+          opacity: 0.7;
         }}
 
         div[data-testid="metric-container"]:hover {{
-          border-color: rgba(20,184,166,0.3);
-          box-shadow: 0 4px 12px rgba(20,184,166,0.12);
+          border-color: rgba(20,184,166,0.4);
+          box-shadow: 0 4px 12px rgba(20,184,166,0.15), 0 8px 24px rgba(56,189,248,0.12);
           transform: translateY(-2px);
         }}
 
@@ -404,49 +375,82 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
         }}
 
         .stButton>button {{
-          border-radius: 12px;
+          border-radius: 14px;
           border: none;
-          background: linear-gradient(135deg, {primary}, {accent});
+          background: linear-gradient(90deg, {primary} 0%, #26C6DA 50%, {accent} 100%);
           color: white;
-          font-weight: 600;
+          font-weight: 700;
           font-size: 0.9375rem;
           padding: 0.75rem 1.5rem;
-          box-shadow: 0 2px 8px rgba(20,184,166,0.25), 0 4px 16px rgba(20,184,166,0.15);
+          box-shadow: 0 4px 12px rgba(20,184,166,0.3), 0 6px 20px rgba(56,189,248,0.25);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           letter-spacing: 0.025em;
+          position: relative;
+          overflow: hidden;
+        }}
+        .stButton>button::before {{
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+          transition: left 0.5s;
+        }}
+        .stButton>button:hover::before {{
+          left: 100%;
         }}
         .stButton>button:hover {{
           transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(20,184,166,0.3), 0 8px 24px rgba(20,184,166,0.2);
+          box-shadow: 0 6px 16px rgba(20,184,166,0.4), 0 10px 28px rgba(56,189,248,0.3);
+          background: linear-gradient(90deg, #0D9488 0%, #14B8A6 50%, #38BDF8 100%);
         }}
         .stButton>button:active {{
           transform: translateY(0);
         }}
 
-        /* Download buttons */
+        /* Download buttons with gradient */
         .stDownloadButton>button {{
           border-radius: 12px;
-          border: 1px solid rgba(20,184,166,0.3);
-          background: #FFFFFF;
+          border: 2px solid rgba(20,184,166,0.35);
+          background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(224,247,250,0.4) 100%);
           color: {primary};
-          font-weight: 600;
+          font-weight: 700;
           font-size: 0.875rem;
           padding: 0.625rem 1.25rem;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-          transition: all 0.3s ease;
+          box-shadow: 0 2px 6px rgba(20,184,166,0.1), 0 4px 12px rgba(56,189,248,0.08);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          overflow: hidden;
+        }}
+        .stDownloadButton>button::before {{
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(20,184,166,0.1), transparent);
+          transition: left 0.5s;
+        }}
+        .stDownloadButton>button:hover::before {{
+          left: 100%;
         }}
         .stDownloadButton>button:hover {{
-          background: linear-gradient(135deg, rgba(20,184,166,0.05), rgba(56,189,248,0.08));
+          background: linear-gradient(90deg, rgba(20,184,166,0.1) 0%, rgba(56,189,248,0.15) 100%);
           border-color: {primary};
-          transform: translateY(-1px);
-          box-shadow: 0 2px 8px rgba(20,184,166,0.15);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(20,184,166,0.2), 0 6px 20px rgba(56,189,248,0.15);
         }}
 
         .stTextInput input, .stNumberInput input, .stSelectbox div, .stMultiSelect div {{
-          background-color: #FFFFFF !important;
-          border: 1.5px solid rgba(20,184,166,0.2) !important;
+          background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(224,247,250,0.2) 100%) !important;
+          border: 2px solid rgba(20,184,166,0.25) !important;
           border-radius: 12px !important;
           color: var(--text) !important;
+          box-shadow: 0 2px 4px rgba(20,184,166,0.05) !important;
+          transition: all 0.3s ease !important;
           box-shadow: 0 1px 3px rgba(0,0,0,0.05);
           transition: all 0.2s ease;
           font-size: 0.9375rem;
@@ -454,11 +458,13 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
         }}
         .stTextInput input:focus, .stNumberInput input:focus, .stSelectbox div:focus-within {{
           border-color: {primary} !important;
-          box-shadow: 0 0 0 3px rgba(20,184,166,0.1), 0 2px 8px rgba(20,184,166,0.15) !important;
+          box-shadow: 0 0 0 3px rgba(20,184,166,0.15), 0 4px 12px rgba(56,189,248,0.2) !important;
           outline: none;
+          background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(224,247,250,0.3) 100%) !important;
         }}
         .stTextInput input:hover, .stNumberInput input:hover {{
           border-color: rgba(20,184,166,0.4) !important;
+          box-shadow: 0 2px 6px rgba(20,184,166,0.1) !important;
         }}
 
         /* Selectbox improvements */
@@ -473,16 +479,11 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
         }}
 
         .stDataFrame, .stTable {{
-          border-radius: 16px;
+          border-radius: 12px;
           overflow: hidden;
-          border: 1.5px solid rgba(20,184,166,0.2);
-          box-shadow: 0 2px 8px rgba(20,184,166,0.08);
+          border: 1px solid rgba(20,184,166,0.15);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.04);
           background: #FFFFFF;
-          transition: all 0.3s ease;
-        }}
-
-        .stDataFrame:hover, .stTable:hover {{
-          box-shadow: 0 4px 12px rgba(20,184,166,0.12);
         }}
         .stDataFrame [role="grid"] {{
           font-size: 0.875rem;
@@ -504,36 +505,36 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
 
         div[data-testid="stTabs"] > div[role="tablist"] {{
           gap: 0.5rem;
-          background: linear-gradient(135deg, rgba(20,184,166,0.05) 0%, rgba(56,189,248,0.08) 100%);
-          padding: 0.75rem;
-          border-radius: 16px;
-          border: 1px solid rgba(20,184,166,0.15);
-          box-shadow: inset 0 1px 3px rgba(20,184,166,0.05);
+          background: linear-gradient(90deg, rgba(224,247,250,0.4) 0%, rgba(178,235,242,0.3) 100%);
+          padding: 0.5rem;
+          border-radius: 14px;
+          border: 2px solid rgba(20,184,166,0.2);
+          box-shadow: 0 2px 8px rgba(20,184,166,0.08);
         }}
 
         div[data-testid="stTabs"] > div[role="tablist"] button[role="tab"] {{
           color: {text} !important;
           font-weight: 600;
-          background: #FFFFFF;
+          background: rgba(255,255,255,0.9);
           border-radius: 12px;
-          padding: 0.625rem 1.5rem;
-          border: 1.5px solid rgba(20,184,166,0.2);
+          padding: 0.5rem 1.25rem;
+          border: 2px solid rgba(20,184,166,0.25);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+          box-shadow: 0 2px 4px rgba(20,184,166,0.05);
         }}
 
         div[data-testid="stTabs"] > div[role="tablist"] button[role="tab"]:hover {{
-          background: linear-gradient(135deg, rgba(20,184,166,0.08), rgba(56,189,248,0.1));
-          border-color: rgba(20,184,166,0.35);
+          background: linear-gradient(90deg, rgba(20,184,166,0.08) 0%, rgba(56,189,248,0.1) 100%);
+          border-color: rgba(20,184,166,0.4);
           transform: translateY(-1px);
-          box-shadow: 0 2px 6px rgba(20,184,166,0.15);
         }}
 
         div[data-testid="stTabs"] > div[role="tablist"] button[role="tab"][aria-selected="true"] {{
-          background: linear-gradient(135deg, {primary}, {accent});
+          background: linear-gradient(90deg, {primary} 0%, #26C6DA 50%, {accent} 100%);
           border-color: {primary};
           color: #FFFFFF !important;
-          box-shadow: 0 2px 8px rgba(20,184,166,0.25);
+          box-shadow: 0 4px 16px rgba(20,184,166,0.35), 0 6px 24px rgba(56,189,248,0.25);
+          transform: translateY(-2px);
         }}
 
         div[data-testid="stTabs"] > div[role="tablist"] button[role="tab"]:focus-visible {{
@@ -542,16 +543,24 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
         }}
 
         .js-plotly-plot {{
-          background: #FFFFFF !important;
+          background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(224,247,250,0.15) 100%) !important;
           border-radius: 16px;
-          box-shadow: 0 2px 8px rgba(20,184,166,0.08);
-          padding: 1.5rem;
-          border: 1px solid rgba(20,184,166,0.15);
-          transition: all 0.3s ease;
+          box-shadow: 0 4px 12px rgba(20,184,166,0.1), 0 6px 20px rgba(56,189,248,0.08);
+          padding: 1rem;
+          border: 2px solid rgba(20,184,166,0.2);
+          position: relative;
+          overflow: hidden;
         }}
-
-        .js-plotly-plot:hover {{
-          box-shadow: 0 4px 16px rgba(20,184,166,0.12);
+        
+        .js-plotly-plot::before {{
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, {primary} 0%, {accent} 100%);
+          opacity: 0.7;
         }}
 
         /* Section spacing */
@@ -618,143 +627,63 @@ def inject_css(primary, accent, bg, panel, text, muted, warn, danger):
           background: rgba(20,184,166,0.02);
         }}
 
-        /* Enhanced filter cards - pill-style segmented toggle container */
+        /* Modern filter cards - clean and professional */
         .filter-card {{
-          background: rgba(20,184,166,0.08);
-          border: 1.5px solid rgba(20,184,166,0.25);
-          border-radius: 16px;
+          background: #FFFFFF;
+          border: 1.5px solid rgba(20,184,166,0.2);
+          border-radius: 12px;
           padding: 16px 20px;
+          transition: all 0.2s ease;
           position: relative;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }}
+        .filter-card:hover {{
+          border-color: rgba(20,184,166,0.35);
+          box-shadow: 0 2px 6px rgba(20,184,166,0.1);
         }}
         .filter-label {{
-          font-size: 13px;
+          font-size: 11px;
           font-weight: 600;
           color: {muted};
-          margin: 0 0 12px 0;
-          text-transform: none;
-          letter-spacing: 0.2px;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          opacity: 0.8;
         }}
-        
-        /* Segmented Toggle Buttons (Radio-style) */
-        .segmented-toggle {{
-          display: flex;
-          background: rgba(255,255,255,0.8);
-          border-radius: 12px;
-          padding: 4px;
-          gap: 4px;
-          border: 1px solid rgba(20,184,166,0.2);
-        }}
-        
-        .segmented-toggle label {{
-          flex: 1;
-          padding: 10px 16px;
-          text-align: center;
-          border-radius: 8px;
-          font-size: 14px;
-          font-weight: 600;
-          color: {muted};
-          cursor: pointer;
-          transition: all 0.2s ease;
-          background: transparent;
-          border: none;
-          margin: 0;
-        }}
-        
-        .segmented-toggle input[type="radio"] {{
-          display: none;
-        }}
-        
-        .segmented-toggle label:hover {{
-          background: rgba(20,184,166,0.08);
+        .filter-value {{
+          font-size: 18px;
+          font-weight: 700;
           color: {primary};
+          margin-top: 2px;
+          line-height: 1.3;
         }}
         
-        .segmented-toggle input[type="radio"]:checked + label {{
-          background: linear-gradient(135deg, {primary}, {accent});
-          color: white;
-          box-shadow: 0 2px 6px rgba(20,184,166,0.3);
-        }}
-        
-        /* Override Streamlit radio button styling for segmented toggles */
-        .filter-card .stRadio {{
-          margin-top: 0;
-        }}
-        
-        .filter-card .stRadio > div {{
-          display: flex !important;
-          background: rgba(255,255,255,0.95) !important;
-          border-radius: 12px !important;
-          padding: 4px !important;
-          gap: 4px !important;
-          border: 1.5px solid rgba(20,184,166,0.25) !important;
-          flex-direction: row !important;
-          box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
-        }}
-        
-        /* Highlighted model selection */
-        .model-selected {{
-          background: linear-gradient(135deg, {primary}, {accent}) !important;
-          color: white !important;
-          padding: 12px 16px !important;
-          border-radius: 8px !important;
-          text-align: center !important;
-          font-weight: 700 !important;
-          box-shadow: 0 2px 8px rgba(20,184,166,0.3) !important;
+        /* Filter card with selectbox inside */
+        .filter-card-container {{
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
         }}
         
         /* Style selectbox inside filter card */
         .filter-card ~ .stSelectbox {{
-          margin-top: 0;
+          margin-top: -8px;
         }}
         
         .filter-card ~ .stSelectbox > div > div {{
-          background: rgba(255,255,255,0.95) !important;
+          background: #FFFFFF !important;
           border: 1.5px solid rgba(20,184,166,0.25) !important;
           border-radius: 8px !important;
+          padding: 8px 12px !important;
         }}
         
-        .filter-card .stRadio > div > label {{
-          flex: 1 !important;
-          padding: 10px 16px !important;
-          text-align: center !important;
-          border-radius: 8px !important;
-          font-size: 14px !important;
-          font-weight: 600 !important;
-          color: {muted} !important;
-          cursor: pointer !important;
-          transition: all 0.2s ease !important;
-          background: transparent !important;
-          border: 1.5px solid transparent !important;
-          margin: 0 !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          min-height: 40px;
+        .filter-card ~ .stSelectbox > div > div:hover {{
+          border-color: rgba(20,184,166,0.4) !important;
         }}
         
-        .filter-card .stRadio > div > label:hover {{
-          background: rgba(20,184,166,0.1) !important;
-          color: {primary} !important;
-          border-color: rgba(20,184,166,0.3) !important;
-        }}
-        
-        .filter-card .stRadio > div > label[data-baseweb="radio"]:has(input:checked),
-        .filter-card .stRadio > div > label:has(input[checked]),
-        .filter-card .stRadio > div > label:has(input[type="radio"]:checked) {{
-          background: linear-gradient(135deg, {primary}, {accent}) !important;
-          color: white !important;
+        .filter-card ~ .stSelectbox > div > div:focus-within {{
           border-color: {primary} !important;
-          box-shadow: 0 2px 8px rgba(20,184,166,0.35) !important;
-        }}
-        
-        /* Ensure radio buttons are hidden but functional */
-        .filter-card .stRadio input[type="radio"] {{
-          margin-right: 0 !important;
-          margin-left: 0 !important;
-          position: absolute;
-          opacity: 0;
-          width: 0;
-          height: 0;
+          box-shadow: 0 0 0 2px rgba(20,184,166,0.1) !important;
         }}
         </style>
         """,
@@ -920,24 +849,32 @@ def aggregate_series(df: pd.DataFrame, date_col: str, vol_col: str, freq: str) -
     return out
 
 
-def detect_anomalies(series: pd.Series, method: str = "zscore", threshold: float = 3.0) -> pd.Series:
+def detect_anomalies(series: pd.Series, method: str = "iqr", threshold: float = 1.5) -> pd.Series:
     """
-    Detect anomalies in a time series using Z-score method.
+    Detect anomalies in a time series using IQR or Z-score method.
     
     Args:
         series: Time series data
-        method: 'zscore' (only method supported)
-        threshold: Z-score threshold (default 3.0)
+        method: 'iqr' or 'zscore'
+        threshold: Threshold multiplier for IQR (default 1.5) or Z-score (default 3.0)
     
     Returns:
         Boolean series where True indicates an anomaly
     """
-    mean = series.mean()
-    std = series.std()
-    if std == 0:
-        return pd.Series([False] * len(series), index=series.index)
-    z_scores = np.abs((series - mean) / std)
-    anomalies = z_scores > threshold
+    if method == "iqr":
+        Q1 = series.quantile(0.25)
+        Q3 = series.quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - threshold * IQR
+        upper_bound = Q3 + threshold * IQR
+        anomalies = (series < lower_bound) | (series > upper_bound)
+    else:  # zscore
+        mean = series.mean()
+        std = series.std()
+        if std == 0:
+            return pd.Series([False] * len(series), index=series.index)
+        z_scores = np.abs((series - mean) / std)
+        anomalies = z_scores > threshold
     return anomalies
 
 
@@ -1400,53 +1337,16 @@ def compute_requirements(
 
 
 # ----------------------------
-# Header with JustAnswer Branding
+# Header
 # ----------------------------
 st.markdown(
     """
-    <div style="background: linear-gradient(135deg, rgba(20,184,166,0.1) 0%, rgba(56,189,248,0.15) 100%); 
-                border-radius: 20px; 
-                padding: 40px 48px; 
-                margin-bottom: 32px;
-                border: 1px solid rgba(20,184,166,0.2);
-                box-shadow: 0 4px 12px rgba(20,184,166,0.1);">
-      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
-        <span style="font-size: 14px;
-                      font-weight: 600;
-                      color: #475569;
-                      padding: 6px 14px;
-                      border: 1px solid rgba(20,184,166,0.25);
-                      border-radius: 20px;
-                      background-color: rgba(255,255,255,0.9);">
-          This tool is built for JA
-        </span>
-        <span style="background: linear-gradient(135deg, #14B8A6, #38BDF8);
-                      -webkit-background-clip: text;
-                      -webkit-text-fill-color: transparent;
-                      background-clip: text;
-                      font-size: 14px;
-                      font-weight: 600;
-                      padding: 6px 14px;
-                      border: 1px solid rgba(20,184,166,0.25);
-                      border-radius: 20px;
-                      background-color: rgba(255,255,255,0.9);">
-          WFM Forecasting
-        </span>
+    <div class="card">
+      <div class="title">
+        📊 Forecasting Tool with Requirement Calc
+        <span class="badge">built for JA</span>
       </div>
-      <div style="font-size: 32px; 
-                  font-weight: 800; 
-                  letter-spacing: -0.02em;
-                  background: linear-gradient(135deg, #14B8A6, #38BDF8);
-                  -webkit-background-clip: text;
-                  -webkit-text-fill-color: transparent;
-                  background-clip: text;
-                  margin-bottom: 12px;">
-        Forecasting Tool with Requirement Calculator
-      </div>
-      <div style="font-size: 16px; 
-                  color: #475569; 
-                  line-height: 1.6;
-                  max-width: 800px;">
+      <div class="subtitle">
         Simple forecasting and FTE planning for Email, Voice, and Chat LOBs. Start with sample data or upload your own.
       </div>
     </div>
@@ -1477,6 +1377,13 @@ with tab1:
 
     # Enhanced LOB and Frequency Selection
     st.markdown("#### 🎯 Select your options")
+    # #region agent log
+    try:
+        import json
+        with open(r"c:\Users\almar\OneDrive\Documents\Streamlit DF\.cursor\debug.log", "a", encoding="utf-8") as f:
+            f.write(json.dumps({"sessionId":"debug-session","runId":"indent-fix-1250","hypothesisId":"A","location":"Upwork1.py:1250","message":"Select options section reached","data":{"tab":"tab1"},"timestamp":int(__import__("time").time()*1000)}) + "\n")
+    except: pass
+    # #endregion
     col1, col2 = st.columns(2)
     
     with col1:
@@ -1488,14 +1395,12 @@ with tab1:
             """,
             unsafe_allow_html=True,
         )
-        lob_type = st.radio(
+        lob_type = st.selectbox(
             "Channel",
             ["Email", "Voice", "Chat"],
             index=0,
             help="Choose the channel you want to forecast",
-            label_visibility="collapsed",
-            horizontal=True,
-            key="channel_radio"
+            label_visibility="collapsed"
         )
     
     with col2:
@@ -1507,14 +1412,12 @@ with tab1:
             """,
             unsafe_allow_html=True,
         )
-        freq = st.radio(
+        freq = st.selectbox(
             "Planning Frequency",
             ["Daily", "Weekly", "Monthly"],
             index=0,
             help="Daily for detailed forecasting, Weekly for operations, Monthly for planning",
-            label_visibility="collapsed",
-            horizontal=True,
-            key="freq_radio"
+            label_visibility="collapsed"
         )
 
     # Data Source
@@ -1569,45 +1472,42 @@ with tab1:
 
     # Anomaly Detection Section
     st.markdown("#### 🔍 Anomaly Detection")
-    col_anom1, col_anom2 = st.columns(2)
+    col_anom1, col_anom2, col_anom3 = st.columns(3)
     with col_anom1:
-        st.markdown(
-            """
-            <div class="filter-card">
-              <div class="filter-label">🔍 Anomaly Detection</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        enable_anomaly_detection = st.radio(
+        enable_anomaly_detection = st.checkbox(
             "Enable anomaly detection",
-            ["Disabled", "Enabled"],
-            index=0,
-            help="Detect and optionally remove anomalies from the data using Z-Score method",
-            label_visibility="collapsed",
-            horizontal=True,
-            key="anomaly_radio"
+            value=False,
+            help="Detect and optionally remove anomalies from the data"
         )
-        enable_anomaly_detection = (enable_anomaly_detection == "Enabled")
     with col_anom2:
-        st.markdown(
-            """
-            <div class="filter-card">
-              <div class="filter-label">Z-Score Threshold</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        anomaly_threshold = st.number_input(
-            "Z-Score threshold",
-            min_value=1.0,
-            max_value=5.0,
-            value=3.0,
-            step=0.1,
+        anomaly_method = st.selectbox(
+            "Detection method",
+            ["IQR", "Z-Score"],
+            index=0,
             disabled=not enable_anomaly_detection,
-            help="Standard deviation threshold. Higher values = fewer anomalies detected (default: 3.0)",
-            label_visibility="collapsed"
+            help="IQR: Interquartile Range method (default 1.5x IQR)\nZ-Score: Standard deviation method (default 3.0)"
         )
+    with col_anom3:
+        if anomaly_method == "IQR":
+            anomaly_threshold = st.number_input(
+                "IQR multiplier",
+                min_value=0.5,
+                max_value=5.0,
+                value=1.5,
+                step=0.1,
+                disabled=not enable_anomaly_detection,
+                help="Higher values = fewer anomalies detected"
+            )
+        else:  # Z-Score
+            anomaly_threshold = st.number_input(
+                "Z-Score threshold",
+                min_value=1.0,
+                max_value=5.0,
+                value=3.0,
+                step=0.1,
+                disabled=not enable_anomaly_detection,
+                help="Higher values = fewer anomalies detected"
+            )
     
     include_anomalies_in_forecast = True
     anomalies_detected = pd.Series([False] * len(agg), index=agg["Period"])
@@ -1617,7 +1517,7 @@ with tab1:
         series_for_anomaly = agg.set_index("Period")["Volume"].astype(float)
         anomalies_detected = detect_anomalies(
             series_for_anomaly,
-            method="zscore",
+            method=anomaly_method.lower().replace("-", ""),
             threshold=anomaly_threshold
         )
         
@@ -1629,24 +1529,11 @@ with tab1:
             anomalies_styled = anomalies_df.style.format({"Volume": "{:,.0f}"})
             st.dataframe(anomalies_styled, use_container_width=True, height=150)
             
-            st.markdown(
-                """
-                <div class="filter-card">
-                  <div class="filter-label">📈 Include Anomalies in Forecast</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-            include_anomalies_choice = st.radio(
+            include_anomalies_in_forecast = st.checkbox(
                 "Include anomalies in forecast",
-                ["Exclude", "Include"],
-                index=0,
-                help="If Exclude is selected, anomalies will be removed from the data before forecasting",
-                label_visibility="collapsed",
-                horizontal=True,
-                key="include_anomalies_radio"
+                value=False,
+                help="If unchecked, anomalies will be removed before forecasting"
             )
-            include_anomalies_in_forecast = (include_anomalies_choice == "Include")
         else:
             st.info("✅ No anomalies detected with current settings")
             # Clear anomalies from session state if none detected
@@ -1661,55 +1548,33 @@ with tab1:
 
     # Forecast Configuration
     st.markdown("#### 🔮 Forecast settings")
-    
-    # Model Selection with Simple Filter Card
-    st.markdown(
-        """
-        <div class="filter-card">
-          <div class="filter-label">🤖 Forecasting Model</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    
-    model_options = [
-        "ETS (Holt-Winters)",
-        "ARIMA (auto grid)",
-        "Moving Average",
-        "Weighted Moving Average"
-    ]
-    
-    # Add Prophet if available
-    if PROPHET_AVAILABLE:
-        model_options.append("Prophet")
-    else:
-        model_options.append("Prophet (not installed)")
-    
-    # Add XGBoost if available
-    if XGBOOST_AVAILABLE:
-        model_options.append("XGBoost")
-    else:
-        model_options.append("XGBoost (not installed)")
-    
-    model_choice = st.selectbox(
-        "Model",
-        model_options,
-        index=0,
-        help="Choose forecasting model. Moving averages are simpler and faster. Prophet and XGBoost require additional packages.",
-        label_visibility="collapsed"
-    )
-    
-    # Display selected model in highlighted format
-    st.markdown(
-        f"""
-        <div class="filter-card" style="margin-top: 8px;">
-          <div class="filter-value model-selected">{model_choice}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    
-    colB, colC = st.columns(2)
+    colA, colB, colC = st.columns(3)
+    with colA:
+        model_options = [
+            "ETS (Holt-Winters)",
+            "ARIMA (auto grid)",
+            "Moving Average",
+            "Weighted Moving Average"
+        ]
+        
+        # Add Prophet if available
+        if PROPHET_AVAILABLE:
+            model_options.append("Prophet")
+        else:
+            model_options.append("Prophet (not installed)")
+        
+        # Add XGBoost if available
+        if XGBOOST_AVAILABLE:
+            model_options.append("XGBoost")
+        else:
+            model_options.append("XGBoost (not installed)")
+        
+        model_choice = st.selectbox(
+            "Model",
+            model_options,
+            index=0,
+            help="Choose forecasting model. Moving averages are simpler and faster. Prophet and XGBoost require additional packages."
+        )
     with colB:
         max_horizon = 365 if freq == "Daily" else 104
         default_horizon = 30 if freq == "Daily" else 12
@@ -2226,6 +2091,13 @@ with tab2:
     if "forecast" not in st.session_state:
         st.warning("⚠️ Generate a forecast first in the **Forecast** tab.")
         st.stop()
+    # #region agent log
+    try:
+        import json
+        with open(r"c:\Users\almar\OneDrive\Documents\Streamlit DF\.cursor\debug.log", "a", encoding="utf-8") as f:
+            f.write(json.dumps({"sessionId":"debug-session","runId":"indent-fix-1978","hypothesisId":"A","location":"Upwork1.py:1978","message":"Tab2 requirements section reached","data":{"forecast_in_state":"forecast" in st.session_state},"timestamp":int(__import__("time").time()*1000)}) + "\n")
+    except: pass
+    # #endregion
 
     fc = st.session_state["forecast"].copy()
     freq = st.session_state["freq"]
@@ -2507,24 +2379,6 @@ with tab3:
         """
     )
 
-st.markdown(
-    """
-    <div style="text-align: center; 
-                padding: 32px 24px; 
-                margin-top: 48px;
-                border-top: 1px solid rgba(20,184,166,0.15);
-                background: linear-gradient(135deg, rgba(20,184,166,0.03), rgba(56,189,248,0.05));
-                border-radius: 20px 20px 0 0;
-                color: #475569;
-                font-size: 14px;
-                font-weight: 500;">
-      <div style="font-size: 15px; font-weight: 600; color: #0F172A; margin-bottom: 6px;">
-        Forecasting Tool with Requirement Calculator
-      </div>
-      <div style="font-size: 13px; color: #64748B; margin-top: 4px;">
-        Simple, fast, reliable • This tool is built for JA
-      </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
+st.caption(
+    "Forecasting Tool with Requirement Calc (built for JA) - Simple, fast, reliable."
 )
