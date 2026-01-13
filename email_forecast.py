@@ -36,8 +36,13 @@ except ImportError:
 
 try:
     import xgboost as xgb
-    XGBOOST_AVAILABLE = True
-except ImportError:
+    # Verify XGBoost is actually functional by checking for XGBRegressor
+    if hasattr(xgb, 'XGBRegressor'):
+        XGBOOST_AVAILABLE = True
+    else:
+        XGBOOST_AVAILABLE = False
+except (ImportError, AttributeError, Exception) as e:
+    # Catch all exceptions to be safe in deployed environments
     XGBOOST_AVAILABLE = False
 
 warnings.filterwarnings("ignore")
@@ -1013,59 +1018,171 @@ def fit_prophet(train: pd.Series, horizon: int, freq: str) -> Tuple[object, pd.S
     if not PROPHET_AVAILABLE:
         raise ImportError("Prophet is not installed. Install with: pip install prophet")
     
-    # Prepare data for Prophet (requires 'ds' and 'y' columns)
-    df_train = pd.DataFrame({
-        'ds': train.index,
-        'y': train.values
-    })
+    # Note: We'll catch stan_backend errors during actual model creation and fitting
+    # This is more reliable than pre-testing since the error may occur at different stages
     
-    # Set seasonality based on frequency
-    # For daily data, strongly emphasize weekly seasonality (day-of-week patterns)
-    if freq == "Daily":
-        model = Prophet(
-            yearly_seasonality=False,  # Disable yearly for daily
-            weekly_seasonality=True,   # Enable weekly (Sun, Mon, Tue, Wed, Thu, Fri, Sat)
-            daily_seasonality=False,
-            seasonality_mode='additive',
-            seasonality_prior_scale=10.0  # Higher prior scale to emphasize weekly pattern
-        )
-        # Add custom weekly seasonality with more flexibility
-        model.add_seasonality(name='weekly', period=7, fourier_order=3)
-    elif freq == "Weekly":
-        model = Prophet(
-            yearly_seasonality=(len(train) >= 52),
-            weekly_seasonality=False,
-            daily_seasonality=False,
-            seasonality_mode='additive'
-        )
-    else:  # Monthly
-        model = Prophet(
-            yearly_seasonality=(len(train) >= 24),
-            weekly_seasonality=False,
-            daily_seasonality=False,
-            seasonality_mode='additive'
-        )
+    try:
+        # Prepare data for Prophet (requires 'ds' and 'y' columns)
+        df_train = pd.DataFrame({
+            'ds': train.index,
+            'y': train.values
+        })
+        
+        # Ensure dates are datetime type
+        if not pd.api.types.is_datetime64_any_dtype(df_train['ds']):
+            df_train['ds'] = pd.to_datetime(df_train['ds'])
+        
+        # Set seasonality based on frequency
+        # For daily data, strongly emphasize weekly seasonality (day-of-week patterns)
+        model = None
+        try:
+            if freq == "Daily":
+                model = Prophet(
+                    yearly_seasonality=False,  # Disable yearly for daily
+                    weekly_seasonality=True,   # Enable weekly (Sun, Mon, Tue, Wed, Thu, Fri, Sat)
+                    daily_seasonality=False,
+                    seasonality_mode='additive',
+                    seasonality_prior_scale=10.0  # Higher prior scale to emphasize weekly pattern
+                )
+                # Add custom weekly seasonality with more flexibility
+                try:
+                    model.add_seasonality(name='weekly', period=7, fourier_order=3)
+                except:
+                    pass  # If already added or fails, continue
+            elif freq == "Weekly":
+                model = Prophet(
+                    yearly_seasonality=(len(train) >= 52),
+                    weekly_seasonality=False,
+                    daily_seasonality=False,
+                    seasonality_mode='additive'
+                )
+            else:  # Monthly
+                model = Prophet(
+                    yearly_seasonality=(len(train) >= 24),
+                    weekly_seasonality=False,
+                    daily_seasonality=False,
+                    seasonality_mode='additive'
+                )
+        except AttributeError as attr_err:
+            # Specifically catch AttributeError for stan_backend
+            error_str = str(attr_err).lower()
+            if 'stan_backend' in error_str or ('prophet' in error_str and 'attribute' in error_str):
+                # This is the stan_backend error - provide clear guidance
+                raise RuntimeError(
+                    "Prophet model error: The Prophet library has a configuration issue with its Stan backend.\n\n"
+                    "This error ('Prophet' object has no attribute 'stan_backend') usually means:\n"
+                    "  1. Prophet or cmdstanpy is not properly installed\n"
+                    "  2. The Stan backend was not initialized correctly\n\n"
+                    "To fix this, please run:\n"
+                    "  pip install --upgrade prophet cmdstanpy\n"
+                    "  python -c 'from prophet import Prophet; Prophet()'\n\n"
+                    f"Original error: {str(attr_err)}"
+                )
+            else:
+                raise RuntimeError(f"Prophet initialization error: {str(attr_err)}")
+        except (RuntimeError, Exception) as init_err:
+            # Catch other initialization errors
+            error_str = str(init_err).lower()
+            if 'stan_backend' in error_str or 'stan' in error_str:
+                raise RuntimeError(
+                    f"Prophet initialization failed: {str(init_err)}\n\n"
+                    "Please ensure Prophet and cmdstanpy are properly installed:\n"
+                    "  pip install --upgrade prophet cmdstanpy"
+                )
+            else:
+                raise
+        
+        if model is None:
+            raise RuntimeError("Failed to initialize Prophet model")
+        
+        # Fit the model with error handling
+        # Note: Some versions of cmdstanpy don't support the 'verbose' parameter
+        try:
+            # Try fitting without verbose parameter first (most compatible)
+            model.fit(df_train)
+        except TypeError as type_err:
+            # Catch TypeError for unexpected keyword arguments (like 'verbose')
+            error_str = str(type_err).lower()
+            if 'unexpected keyword' in error_str or 'verbose' in error_str:
+                # Try fitting without any additional parameters
+                try:
+                    model.fit(df_train)
+                except Exception as e2:
+                    raise RuntimeError(
+                        f"Prophet version compatibility issue: {str(type_err)}\n\n"
+                        "This usually means there's a version mismatch between Prophet and cmdstanpy.\n"
+                        "Try: pip install --upgrade prophet cmdstanpy\n"
+                        f"Original error: {str(e2)}"
+                    )
+            else:
+                raise RuntimeError(f"Error fitting Prophet model: {str(type_err)}")
+        except AttributeError as attr_err:
+            # Specifically catch AttributeError for stan_backend during fitting
+            error_str = str(attr_err).lower()
+            if 'stan_backend' in error_str or ('prophet' in error_str and 'attribute' in error_str):
+                raise RuntimeError(
+                    "Prophet model error: The Prophet library has a configuration issue with its Stan backend.\n\n"
+                    "This error ('Prophet' object has no attribute 'stan_backend') usually means:\n"
+                    "  1. Prophet or cmdstanpy is not properly installed\n"
+                    "  2. The Stan backend was not initialized correctly\n\n"
+                    "To fix this, please run:\n"
+                    "  pip install --upgrade prophet cmdstanpy\n"
+                    "  python -c 'from prophet import Prophet; Prophet()'\n\n"
+                    f"Original error: {str(attr_err)}"
+                )
+            else:
+                raise RuntimeError(f"Error fitting Prophet model: {str(attr_err)}")
+        except (RuntimeError, Exception) as fit_err:
+            error_msg = str(fit_err).lower()
+            if 'unexpected keyword' in error_msg or 'verbose' in error_msg:
+                raise RuntimeError(
+                    f"Prophet version compatibility issue: {str(fit_err)}\n\n"
+                    "This usually means there's a version mismatch between Prophet and cmdstanpy.\n"
+                    "Try: pip install --upgrade prophet cmdstanpy"
+                )
+            elif 'stan_backend' in error_msg or 'stan' in error_msg:
+                raise RuntimeError(
+                    f"Prophet model error: Please ensure Prophet and cmdstanpy are properly installed.\n"
+                    f"Try: pip install --upgrade prophet cmdstanpy\n"
+                    f"Original error: {str(fit_err)}"
+                )
+            else:
+                raise RuntimeError(f"Error fitting Prophet model: {str(fit_err)}")
+        
+        # Get fitted values
+        fitted_df = model.predict(df_train)
+        fitted_vals = pd.Series(fitted_df['yhat'].values, index=train.index)
+        
+        # Generate future dates
+        freq_map = {"Daily": "D", "Weekly": "W-SUN", "Monthly": "MS"}
+        forecast_freq = freq_map.get(freq, "D")
+        future_dates = pd.date_range(
+            start=train.index.max(),
+            periods=horizon + 1,
+            freq=forecast_freq
+        )[1:]
+        
+        future_df = pd.DataFrame({'ds': future_dates})
+        forecast_df = model.predict(future_df)
+        forecast = pd.Series(forecast_df['yhat'].values, index=future_dates)
+        
+        return model, fitted_vals, forecast
     
-    model.fit(df_train)
-    
-    # Get fitted values
-    fitted_df = model.predict(df_train)
-    fitted_vals = pd.Series(fitted_df['yhat'].values, index=train.index)
-    
-    # Generate future dates
-    freq_map = {"Daily": "D", "Weekly": "W-SUN", "Monthly": "MS"}
-    forecast_freq = freq_map.get(freq, "D")
-    future_dates = pd.date_range(
-        start=train.index.max(),
-        periods=horizon + 1,
-        freq=forecast_freq
-    )[1:]
-    
-    future_df = pd.DataFrame({'ds': future_dates})
-    forecast_df = model.predict(future_df)
-    forecast = pd.Series(forecast_df['yhat'].values, index=future_dates)
-    
-    return model, fitted_vals, forecast
+    except RuntimeError:
+        # Re-raise RuntimeErrors (these are our custom error messages)
+        raise
+    except Exception as e:
+        error_msg = str(e)
+        if 'stan_backend' in error_msg.lower() or 'attribute' in error_msg.lower():
+            raise RuntimeError(
+                "Prophet model error: The Prophet library has a configuration issue with its Stan backend.\n\n"
+                "To fix this, please run:\n"
+                "  pip install --upgrade prophet cmdstanpy\n"
+                "  python -c 'from prophet import Prophet; Prophet()'\n\n"
+                f"Original error: {error_msg}"
+            )
+        else:
+            raise RuntimeError(f"Error fitting Prophet model: {error_msg}")
 
 
 def fit_xgboost(train: pd.Series, horizon: int, freq: str) -> Tuple[object, pd.Series, pd.Series]:
@@ -1402,6 +1519,14 @@ with tab1:
             help="Choose the channel you want to forecast",
             label_visibility="collapsed"
         )
+        st.markdown(
+            f"""
+            <div class="filter-card" style="margin-top: 8px; padding: 12px 16px;">
+              <div class="filter-value">{lob_type}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
     
     with col2:
         st.markdown(
@@ -1418,6 +1543,14 @@ with tab1:
             index=0,
             help="Daily for detailed forecasting, Weekly for operations, Monthly for planning",
             label_visibility="collapsed"
+        )
+        st.markdown(
+            f"""
+            <div class="filter-card" style="margin-top: 8px; padding: 12px 16px;">
+              <div class="filter-value">{freq}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
     # Data Source
@@ -1557,23 +1690,30 @@ with tab1:
             "Weighted Moving Average"
         ]
         
-        # Add Prophet if available
+        # Add Prophet only if available
         if PROPHET_AVAILABLE:
             model_options.append("Prophet")
-        else:
-            model_options.append("Prophet (not installed)")
         
-        # Add XGBoost if available
+        # Add XGBoost only if available
         if XGBOOST_AVAILABLE:
             model_options.append("XGBoost")
-        else:
-            model_options.append("XGBoost (not installed)")
+        
+        # Create help text based on availability
+        help_text = "Choose forecasting model. Moving averages are simpler and faster."
+        if not PROPHET_AVAILABLE or not XGBOOST_AVAILABLE:
+            missing = []
+            if not PROPHET_AVAILABLE:
+                missing.append("Prophet (pip install prophet)")
+            if not XGBOOST_AVAILABLE:
+                missing.append("XGBoost (pip install xgboost)")
+            if missing:
+                help_text += f" Note: {', '.join(missing)} not available in this environment."
         
         model_choice = st.selectbox(
             "Model",
             model_options,
             index=0,
-            help="Choose forecasting model. Moving averages are simpler and faster. Prophet and XGBoost require additional packages."
+            help=help_text
         )
     with colB:
         max_horizon = 365 if freq == "Daily" else 104
@@ -1678,7 +1818,7 @@ with tab1:
                     "Window": str(ma_window),
                 }
                 model_name = "WMA"
-            elif model_choice == "Prophet" or model_choice.startswith("Prophet"):
+            elif model_choice == "Prophet":
                 if not PROPHET_AVAILABLE:
                     st.error("Prophet is not installed. Please install it with: pip install prophet")
                     st.stop()
@@ -1697,7 +1837,7 @@ with tab1:
                 except Exception as e:
                     st.error(f"Error fitting Prophet model: {str(e)}")
                     st.stop()
-            elif model_choice == "XGBoost" or model_choice.startswith("XGBoost"):
+            elif model_choice == "XGBoost":
                 if not XGBOOST_AVAILABLE:
                     st.error("XGBoost is not installed. Please install it with: pip install xgboost")
                     st.stop()
