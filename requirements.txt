@@ -79,5 +79,6 @@ openpyxl
 pillow==9.4.0
 spacy==3.7.2
 openai
+xgboost
 
 
