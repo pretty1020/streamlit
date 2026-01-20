@@ -950,7 +950,7 @@ def create_metrics_cards(mae, rmse, accuracy, model_name):
 st.markdown("""
 <div class="main-header">
     <h1>📈 Forecasting Dashboard</h1>
-    <p>FREE Multi-Model Time Series Forecasting — Built by WFM Commons</p>
+    <p>FREE Time Series Forecasting Tool by WFM Commons</p>
 </div>
 """, unsafe_allow_html=True)
 
