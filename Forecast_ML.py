@@ -11,6 +11,16 @@ from datetime import datetime
 # Suppress PyTorch warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 
+# Import forecasting models with path handling for deployment
+import sys
+import os
+
+# Add current directory to Python path to ensure models can be found
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
+# Import forecasting models
 from models.sarimax_model import SARIMAXForecaster
 from models.arima_model import ARIMAForecaster
 from models.expsmooth_model import ExpSmoothForecaster
@@ -946,7 +956,7 @@ def create_metrics_cards(mae, rmse, accuracy, model_name):
 st.markdown("""
 <div class="main-header">
     <h1>📈 Forecasting Dashboard</h1>
-    <p>FREE Multi-Model Time Series Forecasting</p>
+    <p>FREE Multi-Model Time Series Forecasting — Built by WFM Commons</p>
 </div>
 """, unsafe_allow_html=True)
 
