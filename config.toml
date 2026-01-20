@@ -1,20 +1,14 @@
 [server]
-python_version = "3.10"
-[theme]
-base="light"
-primaryColor="#7f0f0f"
-backgroundColor="#b3ecfd"
-font="serif"
+headless = true
+port = 8501
+enableCORS = false
+enableXsrfProtection = true
+
+[browser]
+gatherUsageStats = false
 
 [theme]
-primaryColor="#1b200e"
-backgroundColor="#abe2e2"
-secondaryBackgroundColor="#f4faff"
-textColor="#042f27"
-font="serif"
-
-[theme]
-base="light"
-primaryColor="#2d828e"
-backgroundColor="#a8e2e4"
-textColor="#123843"
+primaryColor = "#00ffff"
+backgroundColor = "#0a0e27"
+secondaryBackgroundColor = "#0d1117"
+textColor = "#a0a0a0"
