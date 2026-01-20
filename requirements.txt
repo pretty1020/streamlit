@@ -80,5 +80,13 @@ pillow==9.4.0
 spacy==3.7.2
 openai
 xgboost
+pandas
+numpy
+scikit-learn
+statsmodels
+prophet
+neuralprophet
+streamlit
+plotly
 
 
