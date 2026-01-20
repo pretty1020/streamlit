@@ -1,5 +1,8 @@
-# Core Streamlit and Data Processing
+# Streamlit Application Dependencies
+# This is a STREAMLIT app - NOT a Shiny app
 streamlit>=1.28.0
+
+# Data Processing
 pandas>=2.0.0
 numpy>=1.24.0
 
@@ -12,6 +15,6 @@ neuralprophet>=0.6.0
 # Visualization
 plotly>=5.17.0
 
-# Note: This is a Streamlit application, NOT a Shiny application
-# If deployment system reports 'shiny' dependency error, it's a false positive
-# All required dependencies are listed above
+# IMPORTANT: This application uses STREAMLIT, not Shiny
+# If deployment system reports 'shiny' dependency, it is a FALSE POSITIVE
+# The application does NOT require or use the 'shiny' package
