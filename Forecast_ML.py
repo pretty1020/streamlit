@@ -21,7 +21,6 @@ if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
 # Import forecasting models
-from models.sarimax_model import SARIMAXForecaster
 from models.arima_model import ARIMAForecaster
 from models.expsmooth_model import ExpSmoothForecaster
 from models.prophet_model import ProphetForecaster
@@ -145,7 +144,6 @@ MODEL_OPTIONS = {
     "Moving Average": MovingAverageForecaster,
     "Weighted Moving Average": WeightedMovingAverageForecaster,
     "Holt-Winters": HoltWintersForecaster,
-    "SARIMAX": SARIMAXForecaster,
     "ARIMA": ARIMAForecaster,
     "Exponential Smoothing": ExpSmoothForecaster,
     "Prophet": ProphetForecaster
@@ -155,7 +153,6 @@ MODEL_DESCRIPTIONS = {
     "Moving Average": "Simple moving average - Average of last N periods",
     "Weighted Moving Average": "Weighted moving average - Recent values weighted more heavily",
     "Holt-Winters": "Exponential smoothing with trend and seasonality - Great for seasonal patterns",
-    "SARIMAX": "Seasonal ARIMA with eXogenous variables - Best for data with seasonality and external factors",
     "ARIMA": "AutoRegressive Integrated Moving Average - Classic time series forecasting",
     "Exponential Smoothing": "Smooth historical data with exponential weighting - Great for trend patterns",
     "Prophet": "Facebook's Prophet - Robust to missing data and handles holidays automatically"
@@ -1006,7 +1003,7 @@ with st.sidebar:
     )
     
     # Handle exog column selection
-    if model_name in ["SARIMAX", "ARIMA", "Prophet"]:
+    if model_name in ["ARIMA", "Prophet"]:
         st.markdown("---")
         st.markdown("### 📊 Exogenous Variables")
         exog_input = st.text_input(
@@ -1229,7 +1226,7 @@ if df is not None:
                         forecast['ds'] = pd.to_datetime(forecast['ds'])
                         
                     else:
-                        # Complex models (SARIMAX, ARIMA, Exponential Smoothing, Prophet)
+                        # Complex models (ARIMA, Exponential Smoothing, Prophet)
                         # Initialize model with appropriate parameters
                         if model_name == "Prophet":
                             model = model_class(regressors=exog_columns)
@@ -1241,7 +1238,7 @@ if df is not None:
                         
                         if freq == "Daily":
                             # Initialize data with appropriate parameters
-                            if model_name in ["SARIMAX", "ARIMA"]:
+                            if model_name == "ARIMA":
                                 model.initialize_data(df, exog_columns)
                             else:
                                 model.initialize_data(df)
@@ -1249,8 +1246,6 @@ if df is not None:
                             # Call the correct grid search method for each model
                             if model_name == "ARIMA":
                                 model.grid_search_arima_daily()
-                            elif model_name == "SARIMAX":
-                                model.grid_search_sarimax_daily()
                             elif model_name == "Exponential Smoothing":
                                 model.grid_search_exp_smooth_daily()
                             else:  # Prophet
@@ -1260,8 +1255,8 @@ if df is not None:
                             mae, rmse, accuracy = model.evaluate_daily()
                             progress_bar.progress(80)
                             
-                            # Handle exog for ARIMA/SARIMAX
-                            if model_name in ["SARIMAX", "ARIMA"]:
+                            # Handle exog for ARIMA
+                            if model_name == "ARIMA":
                                 # Create future dates and exog
                                 last_date = df['ds'].max()
                                 future_dates = pd.date_range(start=last_date, periods=forecast_periods + 1, freq='D')[1:]
@@ -1274,7 +1269,7 @@ if df is not None:
                                 forecast = model.forecast_future_daily(forecast_periods)
                         else:
                             # Initialize data with appropriate parameters
-                            if model_name in ["SARIMAX", "ARIMA"]:
+                            if model_name == "ARIMA":
                                 model.initialize_data_monthly(df, exog_columns)
                             else:
                                 model.initialize_data_monthly(df)
@@ -1282,8 +1277,6 @@ if df is not None:
                             # Call the correct grid search method for each model
                             if model_name == "ARIMA":
                                 model.grid_search_arima_monthly()
-                            elif model_name == "SARIMAX":
-                                model.grid_search_sarimax_monthly()
                             elif model_name == "Exponential Smoothing":
                                 model.grid_search_exp_smooth_monthly()
                             else:  # Prophet
@@ -1293,8 +1286,8 @@ if df is not None:
                             mae, rmse, accuracy = model.evaluate_monthly()
                             progress_bar.progress(80)
                             
-                            # Handle exog for ARIMA/SARIMAX
-                            if model_name in ["SARIMAX", "ARIMA"]:
+                            # Handle exog for ARIMA
+                            if model_name == "ARIMA":
                                 # Create future dates and exog
                                 last_date = df['ds'].max()
                                 # Use MonthBegin offset properly
