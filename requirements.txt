@@ -11,7 +11,7 @@ neuralprophet>=0.6.0
 
 # Visualization
 plotly>=5.17.0
+openpyxl>=3.1.2
+xlsxwriter
 
-# Note: This is a Streamlit application, NOT a Shiny application
-# If deployment system reports 'shiny' dependency error, it's a false positive
-# All required dependencies are listed above
+
