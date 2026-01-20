@@ -920,35 +920,39 @@ def fit_ets(train: pd.Series, seasonal_periods: int, seasonality: str) -> Tuple[
     return fitted, fitted.fittedvalues
 
 
-def moving_average(train: pd.Series, window: int, horizon: int) -> Tuple[pd.Series, pd.Series]:
-    """Simple Moving Average forecast"""
+def moving_average(train: pd.Series, window: int, horizon: int, freq: str) -> Tuple[pd.Series, pd.Series]:
     ma_values = train.rolling(window=window).mean()
     fitted_vals = ma_values.fillna(train.iloc[:window].mean())
-    
-    # Forecast: use last window average
+
     last_avg = train.iloc[-window:].mean()
-    forecast = pd.Series([last_avg] * horizon)
-    
+
+    freq_map = {"Daily": "D", "Weekly": "W-SUN", "Monthly": "MS"}
+    forecast_freq = freq_map.get(freq, "D")
+    forecast_index = pd.date_range(start=train.index.max(), periods=horizon + 1, freq=forecast_freq)[1:]
+
+    forecast = pd.Series([last_avg] * horizon, index=forecast_index, dtype=float)
     return fitted_vals, forecast
 
 
-def weighted_moving_average(train: pd.Series, window: int, horizon: int) -> Tuple[pd.Series, pd.Series]:
-    """Weighted Moving Average forecast (more recent values weighted higher)"""
+def weighted_moving_average(train: pd.Series, window: int, horizon: int, freq: str) -> Tuple[pd.Series, pd.Series]:
     weights = np.linspace(1, window, window)
     weights = weights / weights.sum()
-    
+
     fitted_vals = pd.Series(index=train.index, dtype=float)
     for i in range(window - 1, len(train)):
         fitted_vals.iloc[i] = (train.iloc[i-window+1:i+1] * weights).sum()
-    
-    # Fill initial NaN values
+
     fitted_vals.iloc[:window-1] = train.iloc[:window-1]
-    
-    # Forecast: use weighted average of last window
+
     last_weighted_avg = (train.iloc[-window:] * weights).sum()
-    forecast = pd.Series([last_weighted_avg] * horizon)
-    
+
+    freq_map = {"Daily": "D", "Weekly": "W-SUN", "Monthly": "MS"}
+    forecast_freq = freq_map.get(freq, "D")
+    forecast_index = pd.date_range(start=train.index.max(), periods=horizon + 1, freq=forecast_freq)[1:]
+
+    forecast = pd.Series([last_weighted_avg] * horizon, index=forecast_index, dtype=float)
     return fitted_vals, forecast
+
 
 
 def auto_arima_grid(train: pd.Series, seasonal_periods: int, seasonal: bool) -> Tuple[object, Tuple[int, int, int], Tuple[int, int, int, int]]:
@@ -1792,7 +1796,7 @@ with tab1:
                 if ma_window is None or ma_window < 2:
                     st.error("Please set a valid Moving Average window (≥2)")
                     st.stop()
-                fitted_vals, fc_ma = moving_average(train, int(ma_window), int(horizon))
+                fitted_vals, fc_ma = moving_average(train, int(ma_window), int(horizon), freq)
                 # Test forecast: use last window average (same as future forecast)
                 last_avg = train.iloc[-int(ma_window):].mean()
                 test_fc = pd.Series([last_avg] * holdout, index=test.index)
@@ -1806,7 +1810,7 @@ with tab1:
                 if ma_window is None or ma_window < 2:
                     st.error("Please set a valid Moving Average window (≥2)")
                     st.stop()
-                fitted_vals, fc_wma = weighted_moving_average(train, int(ma_window), int(horizon))
+                fitted_vals, fc_wma = weighted_moving_average(train, int(ma_window), int(horizon), freq)
                 # Test forecast: use last window weighted average
                 weights = np.linspace(1, int(ma_window), int(ma_window))
                 weights = weights / weights.sum()
