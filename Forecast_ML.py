@@ -20,10 +20,13 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
-# Import forecasting models
-from models.arima_model import ARIMAForecaster
-from models.expsmooth_model import ExpSmoothForecaster
-from models.prophet_model import ProphetForecaster
+# Ensure models directory parent is in path for package imports
+models_dir = os.path.join(current_dir, 'models')
+if models_dir not in sys.path:
+    sys.path.insert(0, models_dir)
+
+# Import forecasting models - only simple models, no complex dependencies
+# Exponential Smoothing from statsmodels (already imported above)
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
@@ -143,22 +146,16 @@ class HoltWintersForecaster:
 MODEL_OPTIONS = {
     "Moving Average": MovingAverageForecaster,
     "Weighted Moving Average": WeightedMovingAverageForecaster,
-    "Holt-Winters": HoltWintersForecaster,
-    "ARIMA": ARIMAForecaster,
-    "Exponential Smoothing": ExpSmoothForecaster,
-    "Prophet": ProphetForecaster
+    "Holt-Winters": HoltWintersForecaster
 }
 
 MODEL_DESCRIPTIONS = {
     "Moving Average": "Simple moving average - Average of last N periods",
     "Weighted Moving Average": "Weighted moving average - Recent values weighted more heavily",
-    "Holt-Winters": "Exponential smoothing with trend and seasonality - Great for seasonal patterns",
-    "ARIMA": "AutoRegressive Integrated Moving Average - Classic time series forecasting",
-    "Exponential Smoothing": "Smooth historical data with exponential weighting - Great for trend patterns",
-    "Prophet": "Facebook's Prophet - Robust to missing data and handles holidays automatically"
+    "Holt-Winters": "Exponential smoothing with trend and seasonality - Great for seasonal patterns"
 }
 
-DEFAULT_EXOG = ['is_holiday', 'is_system_down', 'is_maintenance']
+# No exogenous variables needed for simple models
 
 # ============================================================================
 # DUMMY DATA GENERATOR
@@ -1002,18 +999,8 @@ with st.sidebar:
         help=f"Number of {freq.lower()} periods to forecast"
     )
     
-    # Handle exog column selection
-    if model_name in ["ARIMA", "Prophet"]:
-        st.markdown("---")
-        st.markdown("### 📊 Exogenous Variables")
-        exog_input = st.text_input(
-            "Exogenous columns (comma-separated)",
-            value=",".join(DEFAULT_EXOG),
-            help="e.g., is_holiday,is_system_down,is_maintenance"
-        )
-        exog_columns = [col.strip() for col in exog_input.split(",") if col.strip()]
-    else:
-        exog_columns = []
+    # No exog columns needed for simple models
+    exog_columns = []
     
     st.markdown("---")
     run = st.button("🚀 Run Forecast", use_container_width=True, type="primary")
@@ -1225,91 +1212,7 @@ if df is not None:
                         # Ensure ds is datetime
                         forecast['ds'] = pd.to_datetime(forecast['ds'])
                         
-                    else:
-                        # Complex models (ARIMA, Exponential Smoothing, Prophet)
-                        # Initialize model with appropriate parameters
-                        if model_name == "Prophet":
-                            model = model_class(regressors=exog_columns)
-                        else:
-                            model = model_class()
-                        
-                        status_text.markdown('<div class="status-badge status-info">🔄 Training model with grid search...</div>', unsafe_allow_html=True)
-                        progress_bar.progress(30)
-                        
-                        if freq == "Daily":
-                            # Initialize data with appropriate parameters
-                            if model_name == "ARIMA":
-                                model.initialize_data(df, exog_columns)
-                            else:
-                                model.initialize_data(df)
-                            
-                            # Call the correct grid search method for each model
-                            if model_name == "ARIMA":
-                                model.grid_search_arima_daily()
-                            elif model_name == "Exponential Smoothing":
-                                model.grid_search_exp_smooth_daily()
-                            else:  # Prophet
-                                model.grid_search_daily()
-                            
-                            progress_bar.progress(60)
-                            mae, rmse, accuracy = model.evaluate_daily()
-                            progress_bar.progress(80)
-                            
-                            # Handle exog for ARIMA
-                            if model_name == "ARIMA":
-                                # Create future dates and exog
-                                last_date = df['ds'].max()
-                                future_dates = pd.date_range(start=last_date, periods=forecast_periods + 1, freq='D')[1:]
-                                exog_future = pd.DataFrame({'ds': future_dates})
-                                for col in exog_columns:
-                                    exog_future[col] = 0
-                                exog_future = exog_future.set_index('ds')[exog_columns] if exog_columns else None
-                                forecast = model.forecast_future_daily(forecast_periods, exog_future=exog_future)
-                            else:
-                                forecast = model.forecast_future_daily(forecast_periods)
-                        else:
-                            # Initialize data with appropriate parameters
-                            if model_name == "ARIMA":
-                                model.initialize_data_monthly(df, exog_columns)
-                            else:
-                                model.initialize_data_monthly(df)
-                            
-                            # Call the correct grid search method for each model
-                            if model_name == "ARIMA":
-                                model.grid_search_arima_monthly()
-                            elif model_name == "Exponential Smoothing":
-                                model.grid_search_exp_smooth_monthly()
-                            else:  # Prophet
-                                model.grid_search_monthly()
-                            
-                            progress_bar.progress(60)
-                            mae, rmse, accuracy = model.evaluate_monthly()
-                            progress_bar.progress(80)
-                            
-                            # Handle exog for ARIMA
-                            if model_name == "ARIMA":
-                                # Create future dates and exog
-                                last_date = df['ds'].max()
-                                # Use MonthBegin offset properly
-                                next_month = last_date + pd.offsets.MonthBegin(1)
-                                future_dates = pd.date_range(start=next_month, periods=forecast_periods, freq='MS')
-                                exog_future = pd.DataFrame({'ds': future_dates})
-                                for col in exog_columns:
-                                    exog_future[col] = 0
-                                exog_future = exog_future.set_index('ds')[exog_columns] if exog_columns else None
-                                forecast = model.forecast_future_monthly(forecast_periods, exog_future=exog_future)
-                            else:
-                                forecast = model.forecast_future_monthly(forecast_periods)
-                        
-                        # Normalize forecast column names
-                        if 'date' in forecast.columns:
-                            forecast = forecast.rename(columns={'date': 'ds', 'forecast': 'yhat'})
-                        elif 'yhat' not in forecast.columns and len(forecast.columns) >= 2:
-                            # Handle case where forecast might have different structure
-                            forecast = forecast.rename(columns={forecast.columns[0]: 'ds', forecast.columns[1]: 'yhat'})
-                        
-                        # Ensure ds is datetime
-                        forecast['ds'] = pd.to_datetime(forecast['ds'])
+                    # All models are simple models - no complex model logic needed
                     
                     progress_bar.progress(100)
                     status_text.markdown('<div class="status-badge status-success">✅ Forecast completed successfully!</div>', unsafe_allow_html=True)
